@@ -1,0 +1,223 @@
+:root {
+    --bg-color: #2c3e50;
+    --primary-color: #3498db;
+    --secondary-color: #95a5a6;
+    --text-color: #ecf0f1;
+    --panel-color: #34495e;
+    --border-color: #4a637b; /* New variable for borders */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.app-header {
+    text-align: center;
+    border-bottom: 1px solid var(--panel-color);
+    padding-bottom: 10px;
+}
+
+.app-header h1 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.app-header p {
+    margin: 5px 0 0;
+    color: var(--secondary-color);
+}
+
+.panel-container {
+    background-color: var(--panel-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+textarea#text-input {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #2c3e50;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 16px;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.reader-container {
+    width: 100%;
+}
+
+#display-window {
+    width: 100%;
+    height: 150px;
+    background-color: #1e2b38;
+    border: 1px solid var(--panel-color);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+#word-display {
+    font-size: 48px;
+    font-weight: normal; /* Base font weight is normal */
+    text-align: center;
+    color: #e0e0e0;
+}
+
+/* Style for the first word of a sentence */
+.sentence-start {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background-color: var(--panel-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 0.2s ease-in-out;
+}
+
+
+/* --- CONTROLS --- */
+
+.main-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px; /* Spacing below progress bar */
+}
+
+/* Grouping for settings */
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px 20px 20px 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between control groups inside a fieldset */
+}
+
+legend {
+    padding: 0 10px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Grid layout for perfect alignment */
+.control-group {
+    display: grid;
+    grid-template-columns: 1fr 2fr 50px; /* Label | Slider | Value */
+    align-items: center;
+    gap: 15px;
+}
+
+.control-group label {
+    font-size: 14px;
+    color: var(--secondary-color);
+    text-align: left; /* Align labels left */
+}
+
+.control-value {
+    font-weight: bold;
+    color: var(--text-color);
+    text-align: right;
+    font-size: 14px;
+    width: 50px; /* Fixed width for alignment */
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: var(--bg-color);
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+/* Specific grid for color picker which has fewer columns */
+.control-group:has(.control-color-picker) {
+    grid-template-columns: 1fr auto; /* Label | Color Picker */
+    justify-content: start;
+    grid-template-rows: auto;
+}
+
+.control-color-picker {
+    width: 40px;
+    height: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 2px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn-primary { background-color: var(--primary-color); color: white; }
+.btn-primary:hover { background-color: #2980b9; }
+
+.btn-secondary { background-color: var(--secondary-color); color: #2c3e50; }
+.btn-secondary:hover { background-color: #7f8c8d; }
+
+.hidden {
+    display: none !important;
+}
