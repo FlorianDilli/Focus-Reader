@@ -1,5 +1,5 @@
 'use strict';
-
+// lolsad
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const textInput = document.getElementById('text-input');
