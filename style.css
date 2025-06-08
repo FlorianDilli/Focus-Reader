@@ -192,7 +192,7 @@ textarea#text-input:focus {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    /* Let fieldsets manage their own spacing instead of using a global gap */
     transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out, opacity 0.35s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
     max-height: 1000px;
     opacity: 1;
@@ -212,28 +212,43 @@ textarea#text-input:focus {
     transform: rotate(-90deg);
 }
 
+/* UPDATED: Fieldset, Legend, and Separator Styling */
 fieldset {
     border: none;
-    border-top: var(--border-width) solid var(--border-color);
-    padding: 20px 0 0 0;
+    padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    transition: border-color 0.3s ease;
+    gap: 20px; /* This creates space between the legend and its controls */
 }
-fieldset:first-of-type {
-    border-top: none;
-    padding-top: 0;
+
+/* Add a larger top margin to create vertical space between sections */
+fieldset + fieldset {
+    margin-top: 30px;
 }
 
 legend {
     padding: 0;
-    margin-bottom: 5px;
+    margin: 20px 0; /* Added space above and below each label with line */
     font-weight: 700;
     font-size: 1rem;
     color: var(--text-color);
     transition: color 0.3s ease;
+    
+    /* Use flexbox to align the text and the separator line */
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Add the separator line ONLY to legends in fieldsets that follow another one */
+fieldset + fieldset > legend::after {
+    content: '';
+    flex-grow: 1; /* Makes the line fill all available horizontal space */
+    height: var(--border-width);
+    background-color: var(--border-color);
+    margin-left: 15px; /* Creates the space between the text and the line */
+    transition: background-color 0.3s ease;
 }
 
 .control-group {
@@ -379,4 +394,99 @@ input[type="range"]::-moz-range-track {
     .app-header h1 {
         font-size: 2.5rem; /* Slightly smaller title on mobile */
     }
+}
+
+/* --- FOCUS MODE STYLES --- NEW SECTION */
+
+/* Hide non-essential elements when focus mode is active */
+body.focus-mode .app-header,
+body.focus-mode #input-section,
+body.focus-mode #controls-section {
+    display: none;
+}
+
+/* Make the app container and reader section fill the screen */
+body.focus-mode {
+    padding: 0;
+    align-items: center; /* Center the container vertically */
+}
+
+body.focus-mode .app-container {
+    max-width: 100%;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    gap: 0;
+}
+
+body.focus-mode #reader-section {
+    position: relative; /* For absolute positioning of controls */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Style the display window for focus */
+body.focus-mode #display-window {
+    flex-grow: 1; /* Take up available vertical space */
+    border: none;
+    background-color: transparent;
+    margin-bottom: 0;
+}
+
+/* Adjust word display padding for more breathing room */
+body.focus-mode #word-display {
+    padding: 0 50px;
+}
+
+/* Style the progress bar for subtlety */
+body.focus-mode .progress-bar-container {
+    height: 5px;
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    padding: 1px;
+    margin-bottom: 0; /* No margin below it */
+}
+
+/* Handle the controls visibility and style */
+body.focus-mode #reader-section .main-controls {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    position: absolute; /* Position relative to #reader-section */
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0;
+    pointer-events: none; /* Prevent interacting with invisible buttons */
+}
+
+/* Show controls on hover of the entire reader section */
+body.focus-mode #reader-section:hover .main-controls {
+    opacity: 1;
+    pointer-events: auto; /* Allow interaction when visible */
+}
+
+/* Make buttons minimalist in focus mode */
+body.focus-mode #reader-section .main-controls .btn {
+    box-shadow: none;
+    background: transparent;
+    border-color: var(--text-light-color);
+    color: var(--text-light-color);
+    font-weight: 500;
+}
+body.focus-mode #reader-section .main-controls .btn:hover {
+    border-color: var(--text-color);
+    color: var(--text-color);
+    background-color: transparent; /* Override default hover */
+}
+body.focus-mode #reader-section .main-controls .btn:active {
+    transform: translate(1px, 1px);
+    background: rgba(128, 128, 128, 0.1);
+}
+
+/* Hide cursor when user is idle */
+body.focus-mode.idle-cursor {
+    cursor: none;
 }

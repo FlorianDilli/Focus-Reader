@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // DOM Elements
+    const body = document.body;
     const textInput = document.getElementById('text-input');
     const startPauseBtn = document.getElementById('start-pause-btn');
     const resetBtn = document.getElementById('reset-btn');
@@ -29,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressBar = document.getElementById('progress-bar');
     const startPauseBtnInitial = document.getElementById('start-pause-btn-initial');
     const pasteBtn = document.getElementById('paste-btn');
-    const themeToggleBtn = document.getElementById('theme-toggle-btn'); // NEW
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const focusBtn = document.getElementById('focus-btn'); // NEW: Focus button
     // Collapsible Settings Elements
     const controlsSection = document.getElementById('controls-section');
     const collapsibleHeader = document.querySelector('.collapsible-header');
@@ -47,10 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
         theme: '', // Will be set on load
         isRunning: false,
         isPaused: false,
-        timerId: null
+        timerId: null,
+        isFocusMode: false, // NEW: Focus mode state
+        idleTimer: null      // NEW: Timer for idle cursor
     };
 
-    // --- Theme Management --- NEW SECTION
+    // --- Theme Management ---
     function applyTheme(themeName) {
         const theme = APP_CONFIG.colors[themeName];
         if (!theme) {
@@ -142,7 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
     startPauseBtnInitial.addEventListener('click', handleStartPause);
     resetBtn.addEventListener('click', resetApp);
     pasteBtn.addEventListener('click', handlePaste);
-    themeToggleBtn.addEventListener('click', handleThemeToggle); // NEW
+    themeToggleBtn.addEventListener('click', handleThemeToggle);
+    focusBtn.addEventListener('click', toggleFocusMode); // NEW
+    document.addEventListener('keydown', handleKeydown); // NEW
     
     collapsibleHeader.addEventListener('click', () => {
         controlsSection.classList.toggle('collapsed');
@@ -172,6 +178,41 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Could not paste text. Please check browser permissions or paste manually.');
         }
     }
+
+    // NEW: Handlers for Focus Mode and Idle Cursor
+    function toggleFocusMode() {
+        state.isFocusMode = !state.isFocusMode;
+        body.classList.toggle('focus-mode', state.isFocusMode);
+
+        if (state.isFocusMode) {
+            focusBtn.textContent = 'Exit Focus';
+            resetIdleTimer(); // Start timer immediately
+            document.addEventListener('mousemove', resetIdleTimer);
+            document.addEventListener('mousedown', resetIdleTimer);
+        } else {
+            focusBtn.textContent = 'Focus';
+            clearTimeout(state.idleTimer);
+            body.classList.remove('idle-cursor'); // Ensure cursor is visible
+            document.removeEventListener('mousemove', resetIdleTimer);
+            document.removeEventListener('mousedown', resetIdleTimer);
+        }
+    }
+
+    function handleKeydown(e) {
+        if (e.key === "Escape" && state.isFocusMode) {
+            toggleFocusMode();
+        }
+    }
+
+    function resetIdleTimer() {
+        if (!state.isFocusMode) return;
+        body.classList.remove('idle-cursor');
+        clearTimeout(state.idleTimer);
+        state.idleTimer = setTimeout(() => {
+            body.classList.add('idle-cursor');
+        }, 2000); // Hide cursor after 2 seconds of inactivity
+    }
+
 
     // --- Core Logic ---
     function startReading() {
@@ -207,6 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
         state.currentIndex = 0;
         state.words = [];
         clearTimeout(state.timerId);
+        
+        // NEW: Exit focus mode on reset
+        if (state.isFocusMode) {
+            toggleFocusMode();
+        }
 
         // UPDATED: Reset font color to theme default on app reset
         const currentThemeColors = APP_CONFIG.colors[state.theme];
