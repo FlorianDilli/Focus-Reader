@@ -11,7 +11,11 @@
     <main class="app-container">
 
         <header class="app-header">
-            <h1>QuickStream</h1>
+            <div class="header-top-row">
+                <h1>QuickStream</h1>
+                <!-- NEW: Theme toggle button -->
+                <button id="theme-toggle-btn" class="btn btn-secondary"></button>
+            </div>
             <p>Your Personal Speed Reading Assistant</p>
         </header>
 
@@ -20,6 +24,7 @@
             <h2>1. Paste Your Text</h2>
             <textarea id="text-input" rows="10" placeholder="Paste your article, notes, or any text here..."></textarea>
             <div class="main-controls">
+                <button id="paste-btn" class="btn btn-secondary">Paste from Clipboard</button>
                 <button id="start-pause-btn-initial" class="btn btn-primary">Start Reading</button>
             </div>
         </section>
@@ -40,51 +45,57 @@
 
         <!-- Section for All Controls -->
         <section id="controls-section" class="panel-container">
-            <h2>Settings</h2>
-            <fieldset>
-                <legend>Speed & Chunking</legend>
-                <div class="control-group">
-                    <label for="wpm-slider">Speed (WPM)</label>
-                    <input type="range" id="wpm-slider" min="50" max="1500" value="350" step="10">
-                    <span id="wpm-value" class="control-value">350</span>
-                </div>
-                <div class="control-group">
-                    <label for="chunk-slider">Words per Chunk</label>
-                    <input type="range" id="chunk-slider" min="1" max="7" value="1" step="1">
-                    <span id="chunk-value" class="control-value">1</span>
-                </div>
-            </fieldset>
-            
-            <fieldset>
-                <legend>Punctuation Pauses</legend>
-                <div class="control-group">
-                    <label for="comma-pause-slider">Comma Pause (x)</label>
-                    <input type="range" id="comma-pause-slider" min="1.0" max="5.0" value="1.4" step="0.1">
-                    <span id="comma-pause-value" class="control-value">1.4</span>
-                </div>
-                <div class="control-group">
-                    <label for="sentence-pause-slider">Sentence End (x)</label>
-                    <input type="range" id="sentence-pause-slider" min="1.0" max="6.0" value="1.8" step="0.1">
-                    <span id="sentence-pause-value" class="control-value">1.8</span>
-                </div>
-            </fieldset>
+            <header class="collapsible-header">
+                <h2>Settings</h2>
+                <span class="toggle-icon">▼</span>
+            </header>
+            <div class="collapsible-content">
+                <fieldset>
+                    <legend>Speed & Chunking</legend>
+                    <div class="control-group">
+                        <label for="wpm-slider">Speed (WPM)</label>
+                        <input type="range" id="wpm-slider">
+                        <span id="wpm-value" class="control-value"></span>
+                    </div>
+                    <div class="control-group">
+                        <label for="chunk-slider">Words per Chunk</label>
+                        <input type="range" id="chunk-slider">
+                        <span id="chunk-value" class="control-value"></span>
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>Punctuation Pauses</legend>
+                    <div class="control-group">
+                        <label for="comma-pause-slider">Comma Pause (x)</label>
+                        <input type="range" id="comma-pause-slider">
+                        <span id="comma-pause-value" class="control-value"></span>
+                    </div>
+                    <div class="control-group">
+                        <label for="sentence-pause-slider">Sentence End (x)</label>
+                        <input type="range" id="sentence-pause-slider">
+                        <span id="sentence-pause-value" class="control-value"></span>
+                    </div>
+                </fieldset>
 
-            <fieldset>
-                <legend>Customization</legend>
-                <div class="control-group">
-                    <label for="font-size-slider">Font Size (px)</label>
-                    <input type="range" id="font-size-slider" min="16" max="80" value="48">
-                    <span id="font-size-value" class="control-value">48</span>
-                </div>
-                <div class="control-group">
-                    <label for="font-color-picker">Font Color</label>
-                    <input type="color" id="font-color-picker" class="control-color-picker" value="#e0e0e0">
-                </div>
-            </fieldset>
+                <fieldset>
+                    <legend>Customization</legend>
+                    <div class="control-group">
+                        <label for="font-size-slider">Font Size (px)</label>
+                        <input type="range" id="font-size-slider">
+                        <span id="font-size-value" class="control-value"></span>
+                    </div>
+                    <div class="control-group">
+                        <label for="font-color-picker">Font Color</label>
+                        <input type="color" id="font-color-picker" class="control-color-picker">
+                    </div>
+                </fieldset>
+            </div>
         </section>
 
     </main>
 
+    <script src="settings.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

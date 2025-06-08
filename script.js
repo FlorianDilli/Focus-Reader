@@ -1,6 +1,13 @@
 'use strict';
-// lolsad
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if APP_CONFIG is loaded
+    if (typeof APP_CONFIG === 'undefined') {
+        console.error("Settings file (settings.js) is not loaded or APP_CONFIG is not defined.");
+        alert("Error: Application configuration is missing.");
+        return;
+    }
+
     // DOM Elements
     const textInput = document.getElementById('text-input');
     const startPauseBtn = document.getElementById('start-pause-btn');
@@ -21,38 +28,106 @@ document.addEventListener('DOMContentLoaded', () => {
     const readerSection = document.getElementById('reader-section');
     const progressBar = document.getElementById('progress-bar');
     const startPauseBtnInitial = document.getElementById('start-pause-btn-initial');
+    const pasteBtn = document.getElementById('paste-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn'); // NEW
+    // Collapsible Settings Elements
+    const controlsSection = document.getElementById('controls-section');
+    const collapsibleHeader = document.querySelector('.collapsible-header');
 
-    // Application State
+    // Application State (initialized from APP_CONFIG)
     const state = {
         words: [],
         currentIndex: 0,
-        wpm: 350,
-        chunkSize: 1,
-        commaPauseMultiplier: 1.4,
-        endOfSentencePauseMultiplier: 1.8,
-        fontSize: 48,
-        fontColor: '#e0e0e0',
-        isNewSentence: true,
+        wpm: APP_CONFIG.wpm.default,
+        chunkSize: APP_CONFIG.chunkSize.default,
+        commaPauseMultiplier: APP_CONFIG.commaPauseMultiplier.default,
+        endOfSentencePauseMultiplier: APP_CONFIG.endOfSentencePauseMultiplier.default,
+        fontSize: APP_CONFIG.fontSize.default,
+        fontColor: '', // Will be set by theme
+        theme: '', // Will be set on load
         isRunning: false,
         isPaused: false,
         timerId: null
     };
 
+    // --- Theme Management --- NEW SECTION
+    function applyTheme(themeName) {
+        const theme = APP_CONFIG.colors[themeName];
+        if (!theme) {
+            console.error(`Theme "${themeName}" not found in APP_CONFIG.`);
+            return;
+        }
+
+        // Update CSS variables
+        const root = document.documentElement;
+        root.style.setProperty('--bg-color', theme.bgColor);
+        root.style.setProperty('--panel-color', theme.panelColor);
+        root.style.setProperty('--primary-color', theme.primaryColor);
+        root.style.setProperty('--text-color', theme.textColor);
+        root.style.setProperty('--text-light-color', theme.textLightColor);
+        root.style.setProperty('--border-color', theme.borderColor);
+
+        // Update state and UI elements for theme-dependent values
+        state.fontColor = theme.fontColor;
+        fontColorPicker.value = theme.fontColor;
+        wordDisplay.style.color = theme.fontColor;
+        
+        // Update toggle button text
+        themeToggleBtn.textContent = themeName === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
+    }
+
+    function handleThemeToggle() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('quickstream-theme', state.theme);
+        applyTheme(state.theme);
+    }
+    
     // --- Initialization ---
     function initializeUI() {
+        // WPM Slider
+        wpmSlider.min = APP_CONFIG.wpm.min;
+        wpmSlider.max = APP_CONFIG.wpm.max;
+        wpmSlider.step = APP_CONFIG.wpm.step;
         wpmSlider.value = state.wpm;
         wpmValue.textContent = state.wpm;
+
+        // Chunk Slider
+        chunkSlider.min = APP_CONFIG.chunkSize.min;
+        chunkSlider.max = APP_CONFIG.chunkSize.max;
+        chunkSlider.step = APP_CONFIG.chunkSize.step;
         chunkSlider.value = state.chunkSize;
         chunkValue.textContent = state.chunkSize;
+
+        // Comma Pause Slider
+        commaPauseSlider.min = APP_CONFIG.commaPauseMultiplier.min;
+        commaPauseSlider.max = APP_CONFIG.commaPauseMultiplier.max;
+        commaPauseSlider.step = APP_CONFIG.commaPauseMultiplier.step;
         commaPauseSlider.value = state.commaPauseMultiplier;
         commaPauseValue.textContent = state.commaPauseMultiplier.toFixed(1);
+
+        // Sentence Pause Slider
+        sentencePauseSlider.min = APP_CONFIG.endOfSentencePauseMultiplier.min;
+        sentencePauseSlider.max = APP_CONFIG.endOfSentencePauseMultiplier.max;
+        sentencePauseSlider.step = APP_CONFIG.endOfSentencePauseMultiplier.step;
         sentencePauseSlider.value = state.endOfSentencePauseMultiplier;
         sentencePauseValue.textContent = state.endOfSentencePauseMultiplier.toFixed(1);
+
+        // Font Size Slider
+        fontSizeSlider.min = APP_CONFIG.fontSize.min;
+        fontSizeSlider.max = APP_CONFIG.fontSize.max;
+        fontSizeSlider.step = APP_CONFIG.fontSize.step;
         fontSizeSlider.value = state.fontSize;
         fontSizeValue.textContent = state.fontSize;
         wordDisplay.style.fontSize = `${state.fontSize}px`;
+
+        // Font Color Picker - Value is set by applyTheme
         fontColorPicker.value = state.fontColor;
         wordDisplay.style.color = state.fontColor;
+        
+        // Collapsible Settings
+        if (APP_CONFIG.settingsPanel.startCollapsed) {
+            controlsSection.classList.add('collapsed');
+        }
     }
 
     // --- Event Listeners ---
@@ -63,11 +138,15 @@ document.addEventListener('DOMContentLoaded', () => {
     fontSizeSlider.addEventListener('input', (e) => { state.fontSize = parseInt(e.target.value, 10); fontSizeValue.textContent = state.fontSize; wordDisplay.style.fontSize = `${state.fontSize}px`; });
     fontColorPicker.addEventListener('input', (e) => { state.fontColor = e.target.value; wordDisplay.style.color = state.fontColor; });
     
-    // Listen to both start buttons
     startPauseBtn.addEventListener('click', handleStartPause);
     startPauseBtnInitial.addEventListener('click', handleStartPause);
-
     resetBtn.addEventListener('click', resetApp);
+    pasteBtn.addEventListener('click', handlePaste);
+    themeToggleBtn.addEventListener('click', handleThemeToggle); // NEW
+    
+    collapsibleHeader.addEventListener('click', () => {
+        controlsSection.classList.toggle('collapsed');
+    });
 
     // --- Event Handlers ---
     function handleStartPause() {
@@ -77,6 +156,20 @@ document.addEventListener('DOMContentLoaded', () => {
             resumeReading();
         } else {
             pauseReading();
+        }
+    }
+
+    async function handlePaste() {
+        try {
+            if (!navigator.clipboard) {
+                 alert('Clipboard API not available. Please paste manually.');
+                 return;
+            }
+            const text = await navigator.clipboard.readText();
+            textInput.value = text;
+        } catch (err) {
+            console.error('Failed to read clipboard contents: ', err);
+            alert('Could not paste text. Please check browser permissions or paste manually.');
         }
     }
 
@@ -113,12 +206,16 @@ document.addEventListener('DOMContentLoaded', () => {
         state.isPaused = false;
         state.currentIndex = 0;
         state.words = [];
-        state.isNewSentence = true;
         clearTimeout(state.timerId);
+
+        // UPDATED: Reset font color to theme default on app reset
+        const currentThemeColors = APP_CONFIG.colors[state.theme];
+        state.fontColor = currentThemeColors.fontColor;
+        fontColorPicker.value = state.fontColor;
+        wordDisplay.style.color = state.fontColor;
 
         inputSection.classList.remove('hidden');
         readerSection.classList.add('hidden');
-        // Reset button text to 'Pause' for the reader view button
         startPauseBtn.textContent = 'Pause';
         wordDisplay.innerHTML = '';
         progressBar.style.width = '0%';
@@ -153,26 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const chunkEnd = Math.min(state.currentIndex + state.chunkSize, state.words.length);
         const currentChunkWords = state.words.slice(state.currentIndex, chunkEnd);
         
-        const styledWords = [];
-        for (const word of currentChunkWords) {
-            let currentWord = word;
-            if (state.isNewSentence) {
-                currentWord = `<span class="sentence-start">${word}</span>`;
-                state.isNewSentence = false; // It's no longer a new sentence after the first word
-            }
-            styledWords.push(currentWord);
-
-            // Check if this word ends a sentence, to prepare for the *next* word
-            if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?')) {
-                state.isNewSentence = true;
-            }
-        }
-        
-        wordDisplay.innerHTML = styledWords.join(' ');
+        wordDisplay.innerHTML = currentChunkWords.join(' ');
         
         state.currentIndex = chunkEnd;
         updateProgressBar();
-        return currentChunkWords; // Return the original words for delay calculation
+        return currentChunkWords;
     }
 
     function calculateDelay(chunkWords) {
@@ -180,12 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseChunkDelay = baseDelayPerWord * chunkWords.length;
         
         let bonus = 0;
-        let sentenceEndFound = false;
 
         for (const word of chunkWords) {
             if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?')) {
                 bonus = baseDelayPerWord * (state.endOfSentencePauseMultiplier - 1);
-                sentenceEndFound = true;
                 break;
             }
             if (word.endsWith(',') || word.endsWith(';') || word.endsWith(':')) {
@@ -201,6 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
         progressBar.style.width = `${progress}%`;
     }
 
-    // Run initialization
+    // --- Initial Load ---
+    // Load theme from localStorage or use default, then initialize the app
+    const savedTheme = localStorage.getItem('quickstream-theme') || APP_CONFIG.defaultTheme;
+    state.theme = savedTheme;
+    applyTheme(state.theme);
     initializeUI();
 });
