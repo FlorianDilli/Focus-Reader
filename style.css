@@ -38,7 +38,7 @@ body {
 .header-top-row {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* MODIFIED: Aligns title to the top */
     position: relative;
     gap: 20px;
 }
@@ -47,15 +47,14 @@ body {
 #theme-toggle-btn {
     position: absolute;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0; /* MODIFIED: Position at the very top of the container */
     padding: 8px 12px;
     font-size: 14px;
     min-width: 120px; /* Prevents button from resizing on text change */
     box-shadow: 2px 2px 0px var(--border-color);
 }
 #theme-toggle-btn:active {
-    transform: translate(2px, calc(-50% + 2px));
+    transform: translate(2px, 2px); /* MODIFIED: Simplified for new top position */
     box-shadow: none;
 }
 
@@ -63,11 +62,12 @@ body {
 .app-header h1 {
     margin: 0;
     font-size: 3rem;
-    font-weight: 700;
+    font-family: "Pacifico", cursive;
+    font-weight: 400;
 }
 
 .app-header p {
-    margin: 5px 0 0;
+    margin: -10px 0 25px;
     font-size: 1.1rem;
     color: var(--text-light-color);
 }

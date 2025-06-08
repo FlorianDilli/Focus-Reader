@@ -58,6 +58,6 @@ const APP_CONFIG = {
     defaultTheme: 'light', // Can be 'light' or 'dark'
     settingsPanel: {
         // Set to true if you want the settings panel to be collapsed by default
-        startCollapsed: false 
+        startCollapsed: true 
     }
 };
