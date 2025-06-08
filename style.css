@@ -377,8 +377,9 @@ input[type="range"]::-moz-range-track {
     }
 
     .header-top-row {
-        flex-direction: column-reverse; /* UPDATED: Places button before title */
+        flex-direction: column-reverse; /* Places button before title */
         gap: 15px;
+        align-items: stretch; /* MODIFIED: Allow children to be aligned individually. */
     }
 
     #theme-toggle-btn {
@@ -386,6 +387,7 @@ input[type="range"]::-moz-range-track {
         right: auto;
         top: auto;
         transform: none; /* Reset positioning transform */
+        align-self: flex-end; /* NEW: Align button to the right. The title is centered via its parent. */
     }
     #theme-toggle-btn:active {
         transform: translate(2px, 2px); /* Adjust active state for new position */
