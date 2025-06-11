@@ -42,10 +42,10 @@
                 <div id="progress-bar"></div>
             </div>
             <div class="main-controls">
-                <button id="start-pause-btn" class="btn btn-primary">Pause</button>
+                <!-- MODIFIED: Button order changed -->
                 <button id="reset-btn" class="btn btn-secondary">Reset</button>
-                <!-- NEW: Focus Mode Button -->
                 <button id="focus-btn" class="btn btn-secondary">Focus</button>
+                <button id="start-pause-btn" class="btn btn-primary">Pause</button>
             </div>
         </section>
 
@@ -67,6 +67,19 @@
                         <label for="chunk-slider">Words per Chunk</label>
                         <input type="range" id="chunk-slider">
                         <span id="chunk-value" class="control-value"></span>
+                    </div>
+                    <!-- NEW: Dynamic Speed Controls -->
+                    <div class="control-group toggle-group">
+                        <label for="dynamic-speed-toggle">Dynamic Speed</label>
+                        <label class="switch">
+                            <input type="checkbox" id="dynamic-speed-toggle">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                    <div class="control-group" id="dynamic-speed-slider-group">
+                        <label for="dynamic-speed-slider">Length Penalty (ms/char)</label>
+                        <input type="range" id="dynamic-speed-slider">
+                        <span id="dynamic-speed-value" class="control-value"></span>
                     </div>
                 </fieldset>
                 

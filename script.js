@@ -28,11 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSection = document.getElementById('input-section');
     const readerSection = document.getElementById('reader-section');
     const progressBar = document.getElementById('progress-bar');
+    const progressBarContainer = document.querySelector('.progress-bar-container'); // NEW
     const startPauseBtnInitial = document.getElementById('start-pause-btn-initial');
     const pasteBtn = document.getElementById('paste-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const focusBtn = document.getElementById('focus-btn'); // NEW: Focus button
+    const focusBtn = document.getElementById('focus-btn');
     // Collapsible Settings Elements
+    const dynamicSpeedToggle = document.getElementById('dynamic-speed-toggle');
+    const dynamicSpeedSlider = document.getElementById('dynamic-speed-slider');
+    const dynamicSpeedValue = document.getElementById('dynamic-speed-value');
+    const dynamicSpeedSliderGroup = document.getElementById('dynamic-speed-slider-group');
     const controlsSection = document.getElementById('controls-section');
     const collapsibleHeader = document.querySelector('.collapsible-header');
 
@@ -50,8 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
         isRunning: false,
         isPaused: false,
         timerId: null,
-        isFocusMode: false, // NEW: Focus mode state
-        idleTimer: null      // NEW: Timer for idle cursor
+        isFocusMode: false,
+        idleTimer: null,
+        dynamicSpeedEnabled: APP_CONFIG.dynamicSpeed.defaultEnabled,
+        dynamicSpeedPenalty: APP_CONFIG.dynamicSpeed.penalty.default,
     };
 
     // --- Theme Management ---
@@ -88,6 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Initialization ---
     function initializeUI() {
+        // NEW: Adjust default font size for mobile
+        if (window.innerWidth <= 600) {
+            state.fontSize = 30;
+        }
+
         // WPM Slider
         wpmSlider.min = APP_CONFIG.wpm.min;
         wpmSlider.max = APP_CONFIG.wpm.max;
@@ -124,6 +136,17 @@ document.addEventListener('DOMContentLoaded', () => {
         fontSizeValue.textContent = state.fontSize;
         wordDisplay.style.fontSize = `${state.fontSize}px`;
 
+        // Dynamic Speed Toggle & Slider
+        dynamicSpeedToggle.checked = state.dynamicSpeedEnabled;
+        dynamicSpeedSlider.min = APP_CONFIG.dynamicSpeed.penalty.min;
+        dynamicSpeedSlider.max = APP_CONFIG.dynamicSpeed.penalty.max;
+        dynamicSpeedSlider.step = APP_CONFIG.dynamicSpeed.penalty.step;
+        dynamicSpeedSlider.value = state.dynamicSpeedPenalty;
+        dynamicSpeedValue.textContent = state.dynamicSpeedPenalty;
+
+        // Set the initial disabled state of the penalty slider
+        toggleDynamicSpeedSliderVisuals();
+
         // Font Color Picker - Value is set by applyTheme
         fontColorPicker.value = state.fontColor;
         wordDisplay.style.color = state.fontColor;
@@ -136,25 +159,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     wpmSlider.addEventListener('input', (e) => { state.wpm = parseInt(e.target.value, 10); wpmValue.textContent = state.wpm; });
-    chunkSlider.addEventListener('input', (e) => { state.chunkSize = parseInt(e.target.value, 10); chunkValue.textContent = state.chunkSize; });
+    chunkSlider.addEventListener('input', (e) => { state.chunkSize = parseInt(e.target.value, 10); chunkValue.textContent = state.chunkSize; handleProgressBarScrub(); }); // Scrub on chunk change
     commaPauseSlider.addEventListener('input', (e) => { state.commaPauseMultiplier = parseFloat(e.target.value); commaPauseValue.textContent = state.commaPauseMultiplier.toFixed(1); });
     sentencePauseSlider.addEventListener('input', (e) => { state.endOfSentencePauseMultiplier = parseFloat(e.target.value); sentencePauseValue.textContent = state.endOfSentencePauseMultiplier.toFixed(1); });
     fontSizeSlider.addEventListener('input', (e) => { state.fontSize = parseInt(e.target.value, 10); fontSizeValue.textContent = state.fontSize; wordDisplay.style.fontSize = `${state.fontSize}px`; });
     fontColorPicker.addEventListener('input', (e) => { state.fontColor = e.target.value; wordDisplay.style.color = state.fontColor; });
+    
+    dynamicSpeedToggle.addEventListener('change', handleDynamicSpeedToggle);
+    dynamicSpeedSlider.addEventListener('input', (e) => { state.dynamicSpeedPenalty = parseInt(e.target.value, 10); dynamicSpeedValue.textContent = state.dynamicSpeedPenalty; });
     
     startPauseBtn.addEventListener('click', handleStartPause);
     startPauseBtnInitial.addEventListener('click', handleStartPause);
     resetBtn.addEventListener('click', resetApp);
     pasteBtn.addEventListener('click', handlePaste);
     themeToggleBtn.addEventListener('click', handleThemeToggle);
-    focusBtn.addEventListener('click', toggleFocusMode); // NEW
-    document.addEventListener('keydown', handleKeydown); // NEW
+    focusBtn.addEventListener('click', toggleFocusMode);
+    document.addEventListener('keydown', handleKeydown);
+    progressBarContainer.addEventListener('click', handleProgressBarScrub); // NEW
     
     collapsibleHeader.addEventListener('click', () => {
         controlsSection.classList.toggle('collapsed');
     });
 
     // --- Event Handlers ---
+
+    function handleDynamicSpeedToggle(e) {
+        state.dynamicSpeedEnabled = e.target.checked;
+        toggleDynamicSpeedSliderVisuals();
+    }
+
+    // Helper function to enable/disable the slider based on the toggle state
+    function toggleDynamicSpeedSliderVisuals() {
+        if (state.dynamicSpeedEnabled) {
+            dynamicSpeedSlider.disabled = false;
+            dynamicSpeedSliderGroup.classList.remove('disabled');
+        } else {
+            dynamicSpeedSlider.disabled = true;
+            dynamicSpeedSliderGroup.classList.add('disabled');
+        }
+    }
     function handleStartPause() {
         if (!state.isRunning) {
             startReading();
@@ -179,27 +222,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Handlers for Focus Mode and Idle Cursor
+    // NEW: Handler for clicking/scrubbing the progress bar
+    function handleProgressBarScrub(e) {
+        if (state.words.length === 0) return;
+
+        if (state.isRunning && !state.isPaused) {
+            pauseReading();
+        }
+
+        let percentage = 0;
+        if(e) { // If called from a click event
+            const rect = progressBarContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            percentage = Math.max(0, Math.min(1, clickX / rect.width));
+        } else { // If called programmatically (e.g. on chunk size change)
+            percentage = state.currentIndex / state.words.length;
+        }
+        
+        const targetWordIndex = Math.floor(percentage * state.words.length);
+        
+        // Snap to the beginning of a chunk
+        state.currentIndex = Math.floor(targetWordIndex / state.chunkSize) * state.chunkSize;
+
+        // Manually update the display to show the new chunk
+        const chunkEnd = Math.min(state.currentIndex + state.chunkSize, state.words.length);
+        const currentChunkWords = state.words.slice(state.currentIndex, chunkEnd);
+        
+        // Handle case where we scrub to the very end
+        if(currentChunkWords.length > 0) {
+            wordDisplay.innerHTML = currentChunkWords.join(' ');
+        } else if (state.words.length > 0) {
+            // If at the end, show the last chunk
+            const lastChunkIndex = Math.floor((state.words.length - 1) / state.chunkSize) * state.chunkSize;
+            state.currentIndex = lastChunkIndex;
+            const lastChunk = state.words.slice(lastChunkIndex, state.words.length);
+            wordDisplay.innerHTML = lastChunk.join(' ');
+        }
+        
+        updateProgressBar();
+    }
+
     function toggleFocusMode() {
         state.isFocusMode = !state.isFocusMode;
         body.classList.toggle('focus-mode', state.isFocusMode);
 
         if (state.isFocusMode) {
             focusBtn.textContent = 'Exit Focus';
-            resetIdleTimer(); // Start timer immediately
+            resetIdleTimer();
             document.addEventListener('mousemove', resetIdleTimer);
             document.addEventListener('mousedown', resetIdleTimer);
         } else {
             focusBtn.textContent = 'Focus';
             clearTimeout(state.idleTimer);
-            body.classList.remove('idle-cursor'); // Ensure cursor is visible
+            body.classList.remove('idle-cursor');
             document.removeEventListener('mousemove', resetIdleTimer);
             document.removeEventListener('mousedown', resetIdleTimer);
         }
     }
 
     function handleKeydown(e) {
-        if (e.key === "Escape" && state.isFocusMode) {
+        // MODIFIED: Handle spacebar for pause/resume and Escape for focus mode
+        if (e.code === 'Space' && state.isRunning) {
+            e.preventDefault(); // Prevent page from scrolling
+            handleStartPause();
+        } else if (e.key === "Escape" && state.isFocusMode) {
             toggleFocusMode();
         }
     }
@@ -249,12 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.words = [];
         clearTimeout(state.timerId);
         
-        // NEW: Exit focus mode on reset
         if (state.isFocusMode) {
             toggleFocusMode();
         }
 
-        // UPDATED: Reset font color to theme default on app reset
         const currentThemeColors = APP_CONFIG.colors[state.theme];
         state.fontColor = currentThemeColors.fontColor;
         fontColorPicker.value = state.fontColor;
@@ -298,31 +382,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
         wordDisplay.innerHTML = currentChunkWords.join(' ');
         
-        state.currentIndex = chunkEnd;
         updateProgressBar();
+        state.currentIndex = chunkEnd; // Advance index *after* updating progress bar
         return currentChunkWords;
     }
 
     function calculateDelay(chunkWords) {
         const baseDelayPerWord = (60 * 1000) / state.wpm;
         const baseChunkDelay = baseDelayPerWord * chunkWords.length;
-        
-        let bonus = 0;
 
-        for (const word of chunkWords) {
-            if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?')) {
-                bonus = baseDelayPerWord * (state.endOfSentencePauseMultiplier - 1);
-                break;
-            }
-            if (word.endsWith(',') || word.endsWith(';') || word.endsWith(':')) {
-                bonus = baseDelayPerWord * (state.commaPauseMultiplier - 1);
+        // 1. Calculate dynamic speed penalty (if enabled)
+        let dynamicPenaltyTotal = 0;
+        if (state.dynamicSpeedEnabled) {
+            for (const word of chunkWords) {
+                // Add extra milliseconds for each character in the word
+                dynamicPenaltyTotal += word.length * state.dynamicSpeedPenalty;
             }
         }
         
-        return baseChunkDelay + bonus;
+        // 2. Calculate punctuation-based pause bonus
+        let punctuationBonus = 0;
+        for (const word of chunkWords) {
+            if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?')) {
+                punctuationBonus = baseDelayPerWord * (state.endOfSentencePauseMultiplier - 1);
+                break;
+            }
+            if (word.endsWith(',') || word.endsWith(';') || word.endsWith(':')) {
+                punctuationBonus = baseDelayPerWord * (state.commaPauseMultiplier - 1);
+            }
+        }
+        
+        return baseChunkDelay + dynamicPenaltyTotal + punctuationBonus;
     }
 
     function updateProgressBar() {
+        // In displayNextChunk, progress is based on where we *were*.
+        // In handleProgressBarScrub, it's based on where we *are*.
         const progress = (state.currentIndex / state.words.length) * 100;
         progressBar.style.width = `${progress}%`;
     }

@@ -3,6 +3,16 @@
 // Edit these values to change the default behavior of the application.
 
 const APP_CONFIG = {
+    // NEW: Dynamic speed based on word length
+    dynamicSpeed: {
+        defaultEnabled: false, // Feature is off by default
+        penalty: { // Defines the "ms per character" penalty
+            default: 5,
+            min: 0,
+            max: 20,
+            step: 1
+        }
+    },
     wpm: {
         default: 350,
         min: 50,
