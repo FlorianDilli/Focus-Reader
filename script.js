@@ -322,6 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- NEW: WPM Drag Gesture Handlers ---
 
     function handleWpmDragStart(e) {
+        // MODIFIED: Check if the touch started on a button or progress bar.
+        // If so, do not start the drag gesture and let the button's own
+        // event handler take over.
+        if (e.target.closest('.btn, .progress-bar-container')) {
+            return;
+        }
+
         if (e.touches.length !== 1) return;
         e.preventDefault();
     
