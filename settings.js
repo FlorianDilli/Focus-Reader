@@ -39,6 +39,7 @@ const APP_CONFIG = {
     },
     fontSize: {
         default: 48,
+        mobileDefault: 30, // Default font size for screens <= 600px wide
         min: 16,
         max: 80,
         step: 1

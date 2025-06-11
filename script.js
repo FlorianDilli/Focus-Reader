@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const dynamicSpeedSliderGroup = document.getElementById('dynamic-speed-slider-group');
     const controlsSection = document.getElementById('controls-section');
     const collapsibleHeader = document.querySelector('.collapsible-header');
+    // NEW: WPM Drag Indicator elements
+    const wpmDragIndicator = document.getElementById('wpm-drag-indicator');
+    const wpmDragValue = document.getElementById('wpm-drag-value');
+    const wpmDragBar = document.getElementById('wpm-drag-bar');
 
     // Application State (initialized from APP_CONFIG)
     const state = {
@@ -60,6 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicSpeedEnabled: APP_CONFIG.dynamicSpeed.defaultEnabled,
         dynamicSpeedPenalty: APP_CONFIG.dynamicSpeed.penalty.default,
     };
+    
+    // NEW: State for WPM drag gesture
+    let isDraggingWPM = false;
+    let wpmDragStartY = 0;
+    let wpmDragStartWPM = 0;
+    const WPM_DRAG_SENSITIVITY = 2; // Higher value = less sensitive drag
 
     // --- Theme Management ---
     function applyTheme(themeName) {
@@ -95,9 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Initialization ---
     function initializeUI() {
-        // NEW: Adjust default font size for mobile
+        // Adjust default font size for mobile using config
         if (window.innerWidth <= 600) {
-            state.fontSize = 30;
+            state.fontSize = APP_CONFIG.fontSize.mobileDefault;
         }
 
         // WPM Slider
@@ -271,12 +281,22 @@ document.addEventListener('DOMContentLoaded', () => {
             resetIdleTimer();
             document.addEventListener('mousemove', resetIdleTimer);
             document.addEventListener('mousedown', resetIdleTimer);
+            // NEW: Add touch listeners for WPM control
+            readerSection.addEventListener('touchstart', handleWpmDragStart, { passive: false });
+            readerSection.addEventListener('touchmove', handleWpmDragMove, { passive: false });
+            readerSection.addEventListener('touchend', handleWpmDragEnd);
+            readerSection.addEventListener('touchcancel', handleWpmDragEnd);
         } else {
             focusBtn.textContent = 'Focus';
             clearTimeout(state.idleTimer);
             body.classList.remove('idle-cursor');
             document.removeEventListener('mousemove', resetIdleTimer);
             document.removeEventListener('mousedown', resetIdleTimer);
+            // NEW: Remove touch listeners
+            readerSection.removeEventListener('touchstart', handleWpmDragStart, { passive: false });
+            readerSection.removeEventListener('touchmove', handleWpmDragMove, { passive: false });
+            readerSection.removeEventListener('touchend', handleWpmDragEnd);
+            readerSection.removeEventListener('touchcancel', handleWpmDragEnd);
         }
     }
 
@@ -299,6 +319,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000); // Hide cursor after 2 seconds of inactivity
     }
 
+    // --- NEW: WPM Drag Gesture Handlers ---
+
+    function handleWpmDragStart(e) {
+        if (e.touches.length !== 1) return;
+        e.preventDefault();
+    
+        isDraggingWPM = true;
+        wpmDragStartY = e.touches[0].clientY;
+        wpmDragStartWPM = state.wpm;
+        
+        updateWpmDragIndicator(); // Update display to current WPM
+        wpmDragIndicator.classList.add('visible');
+    }
+    
+    function handleWpmDragMove(e) {
+        if (!isDraggingWPM || e.touches.length !== 1) return;
+        e.preventDefault();
+    
+        const currentY = e.touches[0].clientY;
+        const deltaY = wpmDragStartY - currentY; // Positive delta for upward drag
+    
+        const wpmChange = Math.round(deltaY / WPM_DRAG_SENSITIVITY);
+        
+        // Calculate new WPM, snap to step, and clamp within range
+        let newWpm = wpmDragStartWPM + wpmChange;
+        newWpm = Math.round(newWpm / APP_CONFIG.wpm.step) * APP_CONFIG.wpm.step;
+        newWpm = Math.max(APP_CONFIG.wpm.min, Math.min(APP_CONFIG.wpm.max, newWpm));
+    
+        if (newWpm !== state.wpm) {
+            state.wpm = newWpm;
+            wpmSlider.value = state.wpm;
+            wpmValue.textContent = state.wpm;
+            updateWpmDragIndicator();
+        }
+    }
+    
+    function handleWpmDragEnd(e) {
+        if (!isDraggingWPM) return;
+        
+        isDraggingWPM = false;
+        wpmDragIndicator.classList.remove('visible');
+    }
+    
+    function updateWpmDragIndicator() {
+        // Update the text value
+        wpmDragValue.textContent = state.wpm;
+    
+        // Update the progress bar height
+        const minWpm = APP_CONFIG.wpm.min;
+        const maxWpm = APP_CONFIG.wpm.max;
+        const wpmRange = maxWpm - minWpm;
+    
+        // Prevent division by zero if min and max are the same
+        const percentage = wpmRange > 0 ? (state.wpm - minWpm) / wpmRange : 0;
+        
+        wpmDragBar.style.height = `${percentage * 100}%`;
+    }
 
     // --- Core Logic ---
     function startReading() {

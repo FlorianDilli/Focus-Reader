@@ -564,3 +564,56 @@ body.focus-mode #reader-section .main-controls .btn:active {
 body.focus-mode.idle-cursor {
     cursor: none;
 }
+
+/* --- WPM DRAG INDICATOR STYLES --- NEW SECTION */
+
+#wpm-drag-indicator {
+    position: fixed; /* Use fixed to position relative to viewport */
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none; /* Ignore clicks when hidden */
+    transition: opacity 0.3s ease-out;
+}
+
+#wpm-drag-indicator.visible {
+    opacity: 1;
+}
+
+#wpm-drag-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-color);
+    font-family: monospace;
+    padding: 5px 10px;
+    background-color: var(--panel-color);
+    border: var(--border-width) solid var(--border-color);
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.3s ease; /* For smooth theme changes */
+}
+
+#wpm-drag-bar-container {
+    width: 12px;
+    height: 250px;
+    background-color: var(--panel-color);
+    border: var(--border-width) solid var(--border-color);
+    display: flex;
+    align-items: flex-end; /* Makes the inner bar grow from the bottom */
+    padding: 2px;
+    box-sizing: content-box;
+    transition: all 0.3s ease; /* For smooth theme changes */
+}
+
+#wpm-drag-bar {
+    width: 100%;
+    height: 0%; /* JS will control this */
+    background-color: var(--primary-color);
+    transition: background-color 0.3s ease;
+}
