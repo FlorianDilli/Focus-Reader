@@ -483,6 +483,7 @@ body.focus-mode #controls-section {
 body.focus-mode {
     padding: 0;
     align-items: center; /* Center the container vertically */
+    background-color: var(--panel-color); /* MODIFIED: Use panel color for focus bg */
 }
 
 body.focus-mode .app-container {

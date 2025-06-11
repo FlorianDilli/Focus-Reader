@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSection = document.getElementById('input-section');
     const readerSection = document.getElementById('reader-section');
     const progressBar = document.getElementById('progress-bar');
-    const progressBarContainer = document.querySelector('.progress-bar-container'); // NEW
+    const progressBarContainer = document.querySelector('.progress-bar-container');
     const startPauseBtnInitial = document.getElementById('start-pause-btn-initial');
     const pasteBtn = document.getElementById('paste-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dynamicSpeedSliderGroup = document.getElementById('dynamic-speed-slider-group');
     const controlsSection = document.getElementById('controls-section');
     const collapsibleHeader = document.querySelector('.collapsible-header');
-    // NEW: WPM Drag Indicator elements
+    // WPM Drag Indicator elements
     const wpmDragIndicator = document.getElementById('wpm-drag-indicator');
     const wpmDragValue = document.getElementById('wpm-drag-value');
     const wpmDragBar = document.getElementById('wpm-drag-bar');
@@ -65,11 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicSpeedPenalty: APP_CONFIG.dynamicSpeed.penalty.default,
     };
     
-    // NEW: State for WPM drag gesture
+    // State for WPM gestures
     let isDraggingWPM = false;
     let wpmDragStartY = 0;
     let wpmDragStartWPM = 0;
     const WPM_DRAG_SENSITIVITY = 2; // Higher value = less sensitive drag
+    let wpmIndicatorTimeoutId = null; 
+    // NEW: Accumulator for scroll wheel sensitivity
+    let wpmScrollAccumulator = 0;
 
     // --- Theme Management ---
     function applyTheme(themeName) {
@@ -185,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleBtn.addEventListener('click', handleThemeToggle);
     focusBtn.addEventListener('click', toggleFocusMode);
     document.addEventListener('keydown', handleKeydown);
-    progressBarContainer.addEventListener('click', handleProgressBarScrub); // NEW
+    progressBarContainer.addEventListener('click', handleProgressBarScrub);
     
     collapsibleHeader.addEventListener('click', () => {
         controlsSection.classList.toggle('collapsed');
@@ -232,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Handler for clicking/scrubbing the progress bar
+    // Handler for clicking/scrubbing the progress bar
     function handleProgressBarScrub(e) {
         if (state.words.length === 0) return;
 
@@ -281,27 +284,31 @@ document.addEventListener('DOMContentLoaded', () => {
             resetIdleTimer();
             document.addEventListener('mousemove', resetIdleTimer);
             document.addEventListener('mousedown', resetIdleTimer);
-            // NEW: Add touch listeners for WPM control
+            // Add touch listeners for WPM control
             readerSection.addEventListener('touchstart', handleWpmDragStart, { passive: false });
             readerSection.addEventListener('touchmove', handleWpmDragMove, { passive: false });
             readerSection.addEventListener('touchend', handleWpmDragEnd);
             readerSection.addEventListener('touchcancel', handleWpmDragEnd);
+            // Add wheel listener for desktop WPM control
+            readerSection.addEventListener('wheel', handleWpmScroll, { passive: false });
         } else {
             focusBtn.textContent = 'Focus';
             clearTimeout(state.idleTimer);
             body.classList.remove('idle-cursor');
             document.removeEventListener('mousemove', resetIdleTimer);
             document.removeEventListener('mousedown', resetIdleTimer);
-            // NEW: Remove touch listeners
+            // Remove touch listeners
             readerSection.removeEventListener('touchstart', handleWpmDragStart, { passive: false });
             readerSection.removeEventListener('touchmove', handleWpmDragMove, { passive: false });
             readerSection.removeEventListener('touchend', handleWpmDragEnd);
             readerSection.removeEventListener('touchcancel', handleWpmDragEnd);
+            // Remove wheel listener
+            readerSection.removeEventListener('wheel', handleWpmScroll, { passive: false });
         }
     }
 
     function handleKeydown(e) {
-        // MODIFIED: Handle spacebar for pause/resume and Escape for focus mode
+        // Handle spacebar for pause/resume and Escape for focus mode
         if (e.code === 'Space' && state.isRunning) {
             e.preventDefault(); // Prevent page from scrolling
             handleStartPause();
@@ -319,12 +326,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000); // Hide cursor after 2 seconds of inactivity
     }
 
-    // --- NEW: WPM Drag Gesture Handlers ---
+    // --- WPM Gesture Handlers ---
+
+    // WPM Scroll Gesture Handler (Desktop)
+    function handleWpmScroll(e) {
+        // Prevent the page from actually scrolling
+        e.preventDefault();
+
+        // The value to adjust for sensitivity. Higher number = less sensitive (more scrolling needed).
+        const WPM_SCROLL_THRESHOLD = 50; 
+        
+        if (e.deltaY === 0) return; // No vertical scroll
+
+        // Accumulate the scroll delta from the mouse wheel event
+        wpmScrollAccumulator += e.deltaY;
+        
+        // Check if the accumulated value has crossed the threshold for a change
+        if (Math.abs(wpmScrollAccumulator) >= WPM_SCROLL_THRESHOLD) {
+            // Calculate how many "steps" of change we should apply
+            const stepsToChange = Math.floor(wpmScrollAccumulator / WPM_SCROLL_THRESHOLD);
+            
+            // The total WPM change based on steps and config
+            const wpmChange = stepsToChange * APP_CONFIG.wpm.step;
+
+            // Calculate new WPM and clamp it within the allowed range
+            let newWpm = state.wpm + wpmChange;
+            newWpm = Math.max(APP_CONFIG.wpm.min, Math.min(APP_CONFIG.wpm.max, newWpm));
+
+            if (newWpm !== state.wpm) {
+                state.wpm = newWpm;
+                wpmSlider.value = state.wpm;
+                wpmValue.textContent = state.wpm;
+                updateWpmDragIndicator();
+            }
+
+            // Subtract the "used" amount from the accumulator, preserving any remainder
+            wpmScrollAccumulator -= stepsToChange * WPM_SCROLL_THRESHOLD;
+        }
+
+        // Show the indicator and set a timer to hide it
+        wpmDragIndicator.classList.add('visible');
+
+        // Clear any existing timer to reset the hide timeout
+        clearTimeout(wpmIndicatorTimeoutId);
+        wpmIndicatorTimeoutId = setTimeout(() => {
+            wpmDragIndicator.classList.remove('visible');
+        }, 1000); // Hide after 1 second
+    }
 
     function handleWpmDragStart(e) {
-        // MODIFIED: Check if the touch started on a button or progress bar.
-        // If so, do not start the drag gesture and let the button's own
-        // event handler take over.
+        // Check if the touch started on a button or progress bar.
+        // If so, do not start the drag gesture.
         if (e.target.closest('.btn, .progress-bar-container')) {
             return;
         }
@@ -332,6 +384,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.touches.length !== 1) return;
         e.preventDefault();
     
+        // Clear the timeout for the scroll indicator, as touch takes precedence
+        clearTimeout(wpmIndicatorTimeoutId);
+
         isDraggingWPM = true;
         wpmDragStartY = e.touches[0].clientY;
         wpmDragStartWPM = state.wpm;

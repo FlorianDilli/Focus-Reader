@@ -47,23 +47,23 @@ const APP_CONFIG = {
     // NEW: Centralized color configuration for themes
     colors: {
         light: {
-            bgColor: '#fdf6e9',
-            panelColor: '#fffcf5',
-            primaryColor: '#ff6f00',
-            textColor: '#1c1c1c',
+            bgColor: '#fcf7e6',
+            panelColor: '#fbf3db',
+            primaryColor: '#ff6f00', // Orange
+            textColor: '#63533a', 
             textLightColor: '#595959',
-            borderColor: '#1c1c1c',
+            borderColor: '#63533a',
             // Default color for the reader text, can be overridden by user
-            fontColor: '#1c1c1c'
+            fontColor: '#63533a'
         },
         dark: {
-            bgColor: '#1a1a1a',
-            panelColor: '#2a2a2a',
+            bgColor: '#2a2a2a',
+            panelColor: '#1a1a1a',
             primaryColor: '#ff8c00', // A slightly brighter orange for dark bg
-            textColor: '#f0f0f0',
+            textColor: '#d9d9d9',
             textLightColor: '#a0a0a0',
-            borderColor: '#f0f0f0',
-            fontColor: '#f0f0f0'
+            borderColor: '#d9d9d9',
+            fontColor: '#d9d9d9'
         }
     },
     defaultTheme: 'light', // Can be 'light' or 'dark'
