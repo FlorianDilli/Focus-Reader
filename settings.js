@@ -47,22 +47,22 @@ const APP_CONFIG = {
     // MODIFIED: Centralized color configuration for a more modern theme
     colors: {
         light: {
-            bgColor: '#FFF2E0',         // Light neutral gray
-            panelColor: '#ffffff',       // Pure white
-            primaryColor: '#898AC4',     // A slightly softer, richer orange
-            textColor: '#A2AADB',        // High-contrast dark gray
-            textLightColor: '#C0C9EE',   // Softer secondary text color
-            borderColor: '#dee2e6',      // Light gray for borders
-            fontColor: '#212529'         // Default font color matches text
+            bgColor: '#FFF2E0',         // Main background color of the page
+            panelColor: '#ffffff',       // Background color for panels (input, settings, display window)
+            primaryColor: '#898AC4',     // Accent color (buttons, progress bar, slider fill, etc.)
+            textColor: '#68649e',        // Primary text color for general content
+            textLightColor: '#898AC4',   // Secondary text color (subtitles, labels, less important text)
+            borderColor: '#dee2e6',      // Color for borders around elements and panels
+            fontColor: '#68649e'         // Default color for the text in the reading display window
         },
         dark: {
-            bgColor: '#121212',         // True dark background
-            panelColor: '#1e1e1e',       // Off-black for panels
-            primaryColor: '#f39c12',     // A brighter, more vibrant orange
-            textColor: '#e9ecef',        // Light, easy-to-read off-white
-            textLightColor: '#adb5bd',   // Lighter gray for secondary text
-            borderColor: '#495057',      // Mid-gray for borders
-            fontColor: '#e9ecef'
+            bgColor: '#222831',         // Main background color of the page
+            panelColor: '#393E46',       // Background color for panels (input, settings, display window)
+            primaryColor: '#DFD0B8',     // Accent color (buttons, progress bar, slider fill, etc.)
+            textColor: '#948979',        // Primary text color for general content
+            textLightColor: '#adb5bd',   // Secondary text color (subtitles, labels, less important text)
+            borderColor: '#495057',      // Color for borders around elements and panels
+            fontColor: '#e9ecef'         // Default color for the text in the reading display window
         }
     },
     defaultTheme: 'light', // Can be 'light' or 'dark'

@@ -70,7 +70,8 @@ body {
 
 .app-header h1 {
     margin: 0;
-    font-size: 5rem;
+    /* MODIFIED: Use clamp() for fluid font scaling from mobile to desktop. */
+    font-size: clamp(2.5rem, 10vw, 5rem);
     font-family: "Pacifico", cursive;
     font-weight: 400;
     color: var(--primary-color); /* MODIFIED: Give the title a splash of color */
@@ -78,8 +79,9 @@ body {
 }
 
 .app-header p {
-    margin: -5px 0 25px;
-    font-size: 1.1rem;
+    /* MODIFIED: Use vw and clamp() for fluid margin and font size */
+    margin: clamp(-30px, -2.5vw, -15px) 0 25px;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
     color: var(--text-light-color);
     font-weight: 500; /* NEW: Give subheading a bit more presence */
 }
@@ -168,23 +170,48 @@ textarea#text-input:focus {
     margin-top: 25px;
 }
 
-/* MODIFIED: Default state for settings is now unstyled, waiting for collapsed/expanded state */
+/* --- NEW: Settings Modal & Overlay --- */
+
+#settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+#settings-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* MODIFIED: The entire settings section is now a fixed popup container */
 #controls-section {
-    padding: 0;
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    transition: all 0.35s ease-in-out;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: clamp(320px, 90vw, 400px); /* Responsive width */
+    max-height: calc(100vh - 40px); /* Prevent overflow */
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    /* Add animation for popping in/out */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: bottom right;
 }
 
-/* --- NEW: Settings Button Behavior --- */
-
-/* State when settings panel is collapsed into a floating button */
+/* State when settings are collapsed: a single floating button */
 #controls-section.collapsed {
-    margin-top: 20px; /* Give some space from the element above */
+    /* When collapsed, we don't want the panel logic, so we reset its position */
+    position: static;
+    /* This makes the transform apply instantly when closing, for a clean disappearance */
+    transition: none;
 }
-
 #controls-section.collapsed .collapsible-header {
+    /* This is the floating gear button */
     position: fixed;
     bottom: 30px;
     right: 30px;
@@ -194,42 +221,49 @@ textarea#text-input:focus {
     padding: 0;
     justify-content: center;
     z-index: 100;
-    background-color: var(--primary-color);
-    color: white;
-    /* MODIFIED: Add border to allow for hover color change */
-    border: 1px solid var(--primary-color);
+    background-color: var(--panel-color); /* Changed to panel color */
+    /* color: white; */ /* Text color, not directly for the SVG icon if it uses stroke */
+    border: 1px solid var(--border-color); /* Changed to border color for consistency */
     box-shadow: var(--shadow-lg);
     cursor: pointer;
-    /* MODIFIED: Add transition to match other buttons */
     transition: all 0.15s ease-out;
 }
 #controls-section.collapsed .collapsible-header:hover {
-    /* MODIFIED: Unify hover effect with other buttons */
     transform: translateY(-2px);
     border-color: var(--text-color);
 }
-
 #controls-section.collapsed .collapsible-header h2 {
     display: none;
 }
 
-/* State when settings panel is expanded */
+/* State when settings are expanded: a full pop-up panel */
 #controls-section:not(.collapsed) {
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
+    background-color: var(--panel-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    /* Pop-in animation */
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+/* We need an initial state for the animation to start from */
+#controls-section.collapsing {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    pointer-events: none; /* Prevent interaction while animating out */
 }
 
 .collapsible-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 30px;
+    padding: 20px;
     cursor: pointer;
-    background-color: var(--panel-color);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--border-radius);
+    /* MODIFIED: No background/border needed, parent #controls-section handles it now */
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-bottom: 1px solid var(--border-color); /* Keep the separator line */
     transition: all 0.3s ease;
 }
 
@@ -239,7 +273,6 @@ textarea#text-input:focus {
     font-weight: 700;
 }
 
-/* MODIFIED: Replaced emoji with an SVG icon system for consistency */
 .toggle-icon {
     display: flex;
     align-items: center;
@@ -254,7 +287,6 @@ textarea#text-input:focus {
     transition: all 0.3s ease-out;
 }
 
-/* When expanded, show chevron; when collapsed, show gear */
 #controls-section:not(.collapsed) .icon-gear,
 #controls-section.collapsed .icon-chevron {
     display: none;
@@ -263,47 +295,34 @@ textarea#text-input:focus {
 #controls-section:not(.collapsed) .icon-chevron {
     display: block;
     stroke: var(--text-color);
+    transform: rotate(180deg); /* Chevron points up to close */
 }
 
 #controls-section.collapsed .icon-gear {
     display: block;
-    stroke: white;
+    stroke: var(--primary-color); /* Changed to primary color for contrast on panelColor background */
     width: 30px;
     height: 30px;
 }
 
-#controls-section:not(.collapsed) .collapsible-header {
-    border-bottom: 1px solid var(--border-color);
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    box-shadow: var(--shadow-sm);
-}
-
 .collapsible-content {
-    padding: 30px;
-    background-color: var(--panel-color);
-    border: 1px solid var(--border-color);
-    border-top: none;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.35s ease-in-out;
-    max-height: 1000px;
-    opacity: 1;
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    box-shadow: var(--shadow-md);
+    /* MODIFIED: Let content scroll within the fixed-height panel */
+    overflow-y: auto;
+    padding: 20px;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    /* These properties are now handled by the parent or are irrelevant */
+    transition: none;
+    max-height: none;
 }
 
-#controls-section.collapsed .collapsible-content {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-    border: 1px solid transparent;
-    border-top: none;
-    box-shadow: none;
+/* Hide these elements when panel is collapsed */
+#controls-section.collapsed .collapsible-content { display: none; }
+#controls-section:not(.collapsed) .collapsible-header {
+    border-radius: 0;
 }
+
 
 fieldset {
     border: none;
@@ -509,13 +528,7 @@ input[type="range"]:disabled::-moz-range-thumb { background: var(--text-light-co
 /* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 600px) {
     body { padding: 20px 15px 40px; }
-
-    /* The rules for .header-top-row and #theme-toggle-btn are now the default,
-       so they are no longer needed inside the media query for this specific purpose.
-       Keeping the rest of the mobile styles. */
-
-    .app-header h1 { font-size: 2.5rem; }
-
+    
     /* Make settings button smaller on mobile */
     #controls-section.collapsed .collapsible-header {
         width: 50px;
@@ -527,12 +540,21 @@ input[type="range"]:disabled::-moz-range-thumb { background: var(--text-light-co
         width: 26px;
         height: 26px;
     }
+
+    /* Adjust fixed panel position for mobile */
+    #controls-section:not(.collapsed) {
+        bottom: 15px;
+        right: 15px;
+        left: 15px;
+        width: auto; /* Let it fill the space with padding */
+    }
 }
 
 /* --- FOCUS MODE STYLES --- */
 body.focus-mode .app-header,
 body.focus-mode #input-section,
-body.focus-mode #controls-section { display: none; }
+body.focus-mode #controls-section,
+body.focus-mode #settings-overlay { display: none; }
 
 body.focus-mode {
     padding: 0;

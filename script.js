@@ -46,6 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const wpmDragBar = document.getElementById('wpm-drag-bar');
     // NEW: Get all sliders for fill effect
     const sliders = document.querySelectorAll('input[type="range"]');
+    // NEW: Get settings overlay
+    const settingsOverlay = document.getElementById('settings-overlay');
+
 
     // Application State (initialized from APP_CONFIG)
     const state = {
@@ -174,10 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
         fontColorPicker.value = state.fontColor;
         wordDisplay.style.color = state.fontColor;
         
-        // Collapsible Settings
+        // Collapsible Settings logic for modal popup
         if (APP_CONFIG.settingsPanel.startCollapsed) {
             controlsSection.classList.add('collapsed');
+        } else {
+            // If it starts open, show the overlay too
+            settingsOverlay.classList.remove('hidden');
         }
+
 
         // NEW: Set initial fill for all sliders
         sliders.forEach(updateSliderFill);
@@ -203,11 +210,46 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', handleKeydown);
     progressBarContainer.addEventListener('click', handleProgressBarScrub);
     
-    collapsibleHeader.addEventListener('click', () => {
-        controlsSection.classList.toggle('collapsed');
-    });
+    collapsibleHeader.addEventListener('click', toggleSettingsPanel);
+    settingsOverlay.addEventListener('click', toggleSettingsPanel);
+
 
     // --- Event Handlers ---
+
+    // MODIFIED: Corrected animation logic for opening and closing the settings panel.
+    function toggleSettingsPanel() {
+        const isCollapsed = controlsSection.classList.contains('collapsed');
+
+        if (isCollapsed) {
+            // --- OPENING THE PANEL ---
+            // 1. Remove 'collapsed' so the element is no longer just a static container.
+            controlsSection.classList.remove('collapsed');
+            // 2. Show the overlay.
+            settingsOverlay.classList.remove('hidden');
+            // 3. Add the 'collapsing' class to set the initial animation state (transparent).
+            // This is done after removing 'collapsed' to ensure it applies to the panel state.
+            controlsSection.classList.add('collapsing');
+
+            // 4. In the next frame, remove 'collapsing' to trigger the CSS transition.
+            requestAnimationFrame(() => {
+                controlsSection.classList.remove('collapsing');
+            });
+        } else {
+            // --- CLOSING THE PANEL ---
+            // 1. Add 'collapsing' to trigger the fade-out animation.
+            controlsSection.classList.add('collapsing');
+            // 2. Hide the overlay.
+            settingsOverlay.classList.add('hidden');
+            
+            // 3. After the animation is done, add 'collapsed' to switch it back to the
+            //    static container for the button, and REMOVE 'collapsing' to reset its state.
+            setTimeout(() => {
+                controlsSection.classList.add('collapsed');
+                controlsSection.classList.remove('collapsing'); // This is the fix.
+            }, 300); // This duration must match the transition duration in style.css
+        }
+    }
+
 
     function handleDynamicSpeedToggle(e) {
         state.dynamicSpeedEnabled = e.target.checked;
@@ -325,7 +367,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.code === 'Space' && state.isRunning) {
             e.preventDefault(); // Prevent page from scrolling
             handleStartPause();
-        } else if (e.key === "Escape" && state.isFocusMode) {
+        } else if (e.key === "Escape") {
+            // Close settings panel if it's open
+            if (!controlsSection.classList.contains('collapsed')) {
+                toggleSettingsPanel();
+            } else if (state.isFocusMode) {
+                // Otherwise, exit focus mode
+                toggleFocusMode();
+            }
+        } else if (e.key.toLowerCase() === 'f' && document.activeElement !== textInput) { // New: Toggle focus mode with 'f' key
             toggleFocusMode();
         }
     }
