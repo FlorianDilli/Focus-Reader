@@ -627,9 +627,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Initial Load ---
-    // Load theme from localStorage or use default, then initialize the app
-    const savedTheme = localStorage.getItem('quickstream-theme') || APP_CONFIG.defaultTheme;
-    state.theme = savedTheme;
+    // Determine initial theme based on priority: 1. System, 2. LocalStorage, 3. Config Default
+    let determinedTheme = null;
+
+    // Priority 1: System Preference
+    if (window.matchMedia) {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches && APP_CONFIG.colors.dark) {
+            determinedTheme = 'dark';
+        } else if (window.matchMedia('(prefers-color-scheme: light)').matches && APP_CONFIG.colors.light) {
+            determinedTheme = 'light';
+        }
+        // If system is 'no-preference' or matchMedia is not supported, determinedTheme remains null.
+    }
+
+    // Priority 2: LocalStorage (if System preference was not applicable or not set)
+    if (!determinedTheme) {
+        const savedTheme = localStorage.getItem('quickstream-theme');
+        if (savedTheme && APP_CONFIG.colors[savedTheme]) {
+            determinedTheme = savedTheme;
+        }
+    }
+
+    // Priority 3: App Config Default (if System and LocalStorage were not applicable or theme was invalid)
+    if (!determinedTheme || !APP_CONFIG.colors[determinedTheme]) {
+        determinedTheme = APP_CONFIG.defaultTheme;
+    }
+    
+    state.theme = determinedTheme; 
     applyTheme(state.theme);
     initializeUI();
 });

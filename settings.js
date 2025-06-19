@@ -5,16 +5,16 @@
 const APP_CONFIG = {
     // NEW: Dynamic speed based on word length
     dynamicSpeed: {
-        defaultEnabled: false, // Feature is off by default
+        defaultEnabled: true, // Feature is off by default
         penalty: { // Defines the "ms per character" penalty
-            default: 5,
+            default: 12,
             min: 0,
             max: 20,
             step: 1
         }
     },
     wpm: {
-        default: 350,
+        default: 470,
         min: 50,
         max: 700,
         step: 10
@@ -47,22 +47,22 @@ const APP_CONFIG = {
     // MODIFIED: Centralized color configuration for a more modern theme
     colors: {
         light: {
-            bgColor: '#FFF2E0',         // Main background color of the page
-            panelColor: '#ffffff',       // Background color for panels (input, settings, display window)
-            primaryColor: '#898AC4',     // Accent color (buttons, progress bar, slider fill, etc.)
-            textColor: '#68649e',        // Primary text color for general content
-            textLightColor: '#898AC4',   // Secondary text color (subtitles, labels, less important text)
-            borderColor: '#dee2e6',      // Color for borders around elements and panels
-            fontColor: '#68649e'         // Default color for the text in the reading display window
+            bgColor: '#FFF2E0',         // Page background
+            panelColor: '#ffffff',       // Panel backgrounds
+            primaryColor: '#898AC4',     // Accent elements (buttons, progress bar, etc.)
+            textColor: '#68649e',        // Main text
+            textLightColor: '#898AC4',   // Secondary text (labels, subtitles)
+            borderColor: '#dee2e6',      // Element borders
+            fontColor: '#68649e'         // Reader display text
         },
         dark: {
-            bgColor: '#222831',         // Main background color of the page
-            panelColor: '#393E46',       // Background color for panels (input, settings, display window)
-            primaryColor: '#DFD0B8',     // Accent color (buttons, progress bar, slider fill, etc.)
-            textColor: '#948979',        // Primary text color for general content
-            textLightColor: '#adb5bd',   // Secondary text color (subtitles, labels, less important text)
-            borderColor: '#495057',      // Color for borders around elements and panels
-            fontColor: '#e9ecef'         // Default color for the text in the reading display window
+            bgColor: '#222831',         // Page background
+            panelColor: '#393E46',       // Panel backgrounds
+            primaryColor: '#DFD0B8',     // Accent elements (buttons, progress bar, etc.)
+            textColor: '#948979',        // Main text
+            textLightColor: '#adb5bd',   // Secondary text (labels, subtitles)
+            borderColor: '#495057',      // Element borders
+            fontColor: '#e9ecef'         // Reader display text
         }
     },
     defaultTheme: 'light', // Can be 'light' or 'dark'
