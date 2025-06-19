@@ -32,7 +32,7 @@ body {
     max-width: 700px;
     display: flex;
     flex-direction: column;
-    gap: 80px; /* MODIFIED: Increased for more breathing room */
+    gap: 60px; /* MODIFIED: Increased for more breathing room */
 }
 
 .app-header {
@@ -70,7 +70,7 @@ body {
 
 .app-header h1 {
     margin: 0;
-    font-size: 3rem;
+    font-size: 5rem;
     font-family: "Pacifico", cursive;
     font-weight: 400;
     color: var(--primary-color); /* MODIFIED: Give the title a splash of color */

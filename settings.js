@@ -47,11 +47,11 @@ const APP_CONFIG = {
     // MODIFIED: Centralized color configuration for a more modern theme
     colors: {
         light: {
-            bgColor: '#f8f9fa',         // Light neutral gray
+            bgColor: '#FFF2E0',         // Light neutral gray
             panelColor: '#ffffff',       // Pure white
-            primaryColor: '#e67e22',     // A slightly softer, richer orange
-            textColor: '#212529',        // High-contrast dark gray
-            textLightColor: '#6c757d',   // Softer secondary text color
+            primaryColor: '#898AC4',     // A slightly softer, richer orange
+            textColor: '#A2AADB',        // High-contrast dark gray
+            textLightColor: '#C0C9EE',   // Softer secondary text color
             borderColor: '#dee2e6',      // Light gray for borders
             fontColor: '#212529'         // Default font color matches text
         },
