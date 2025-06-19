@@ -44,31 +44,30 @@ const APP_CONFIG = {
         max: 80,
         step: 1
     },
-    // NEW: Centralized color configuration for themes
+    // MODIFIED: Centralized color configuration for a more modern theme
     colors: {
         light: {
-            bgColor: '#fcf7e6',
-            panelColor: '#fbf3db',
-            primaryColor: '#ff6f00', // Orange
-            textColor: '#63533a', 
-            textLightColor: '#595959',
-            borderColor: '#63533a',
-            // Default color for the reader text, can be overridden by user
-            fontColor: '#63533a'
+            bgColor: '#f8f9fa',         // Light neutral gray
+            panelColor: '#ffffff',       // Pure white
+            primaryColor: '#e67e22',     // A slightly softer, richer orange
+            textColor: '#212529',        // High-contrast dark gray
+            textLightColor: '#6c757d',   // Softer secondary text color
+            borderColor: '#dee2e6',      // Light gray for borders
+            fontColor: '#212529'         // Default font color matches text
         },
         dark: {
-            bgColor: '#2a2a2a',
-            panelColor: '#1a1a1a',
-            primaryColor: '#ff8c00', // A slightly brighter orange for dark bg
-            textColor: '#d9d9d9',
-            textLightColor: '#a0a0a0',
-            borderColor: '#d9d9d9',
-            fontColor: '#d9d9d9'
+            bgColor: '#121212',         // True dark background
+            panelColor: '#1e1e1e',       // Off-black for panels
+            primaryColor: '#f39c12',     // A brighter, more vibrant orange
+            textColor: '#e9ecef',        // Light, easy-to-read off-white
+            textLightColor: '#adb5bd',   // Lighter gray for secondary text
+            borderColor: '#495057',      // Mid-gray for borders
+            fontColor: '#e9ecef'
         }
     },
     defaultTheme: 'light', // Can be 'light' or 'dark'
     settingsPanel: {
         // Set to true if you want the settings panel to be collapsed by default
-        startCollapsed: true 
+        startCollapsed: true
     }
 };

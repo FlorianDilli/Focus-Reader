@@ -1,24 +1,30 @@
 :root {
     /* Color variables are now populated by JavaScript from settings.js */
-    --bg-color: #fdf6e9; 
-    --panel-color: #fffcf5;
-    --primary-color: #ff6f00;
-    --text-color: #1c1c1c;
-    --text-light-color: #595959;
-    --border-color: #1c1c1c;
-    --border-width: 2px;
+    --bg-color: #f8f9fa;
+    --panel-color: #ffffff;
+    --primary-color: #e67e22;
+    --text-color: #212529;
+    --text-light-color: #6c757d;
+    --border-color: #dee2e6;
+    /* NEW: Variables for a modern look */
+    --border-radius: 12px;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 10px rgba(0,0,0,0.08);
+    --shadow-lg: 0 15px 30px rgba(0,0,0,0.1);
 }
 
 body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    /* MODIFIED: Using Inter font */
+    font-family: 'Inter', "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     margin: 0;
-    padding: 40px 20px;
+    /* MODIFIED: Increased top padding on desktop for better spacing */
+    padding: 60px 20px 40px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app-container {
@@ -26,36 +32,39 @@ body {
     max-width: 700px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 80px; /* MODIFIED: Increased for more breathing room */
 }
 
 .app-header {
     text-align: center;
-    margin-bottom: -10px; /* Adjust layout with new button */
+    margin-bottom: 0;
 }
 
-/* NEW: Container for header title and theme toggle */
 .header-top-row {
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* MODIFIED: Aligns title to the top */
+    align-items: center; /* Center items horizontally in the column */
     position: relative;
-    gap: 20px;
+    /* MODIFIED: Stack button and title vertically */
+    flex-direction: column-reverse;
+    gap: 15px;
 }
 
-/* NEW: Theme toggle button styling */
 #theme-toggle-btn {
-    position: absolute;
-    right: 0;
-    top: 0; /* MODIFIED: Position at the very top of the container */
+    /* MODIFIED: Removed absolute positioning to follow flex layout */
+    position: relative;
+    transform: none;
+    top: auto;
+    right: auto;
     padding: 8px 12px;
     font-size: 14px;
-    min-width: 120px; /* Prevents button from resizing on text change */
-    box-shadow: 2px 2px 0px var(--border-color);
+    min-width: 120px;
+    /* NEW: Align button to the right within the flex column */
+    align-self: flex-end;
 }
 #theme-toggle-btn:active {
-    transform: translate(2px, 2px); /* MODIFIED: Simplified for new top position */
-    box-shadow: none;
+    /* MODIFIED: Adjusted for new position */
+    transform: scale(0.97) translateY(1px);
 }
 
 
@@ -64,20 +73,24 @@ body {
     font-size: 3rem;
     font-family: "Pacifico", cursive;
     font-weight: 400;
+    color: var(--primary-color); /* MODIFIED: Give the title a splash of color */
+    transition: color 0.3s ease;
 }
 
 .app-header p {
-    margin: -10px 0 25px;
+    margin: -5px 0 25px;
     font-size: 1.1rem;
     color: var(--text-light-color);
+    font-weight: 500; /* NEW: Give subheading a bit more presence */
 }
 
 .panel-container {
     background-color: var(--panel-color);
-    padding: 25px;
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0; /* No rounded corners */
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--shadow-md); /* NEW: Soft shadow */
 }
 
 textarea#text-input {
@@ -85,18 +98,19 @@ textarea#text-input {
     box-sizing: border-box;
     background-color: var(--panel-color);
     color: var(--text-color);
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px; /* Slightly smaller radius for inputs */
     padding: 15px;
     font-size: 16px;
     resize: vertical;
     margin-bottom: 20px;
     font-family: inherit;
-    transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
+    transition: all 0.2s ease;
 }
 textarea#text-input:focus {
     outline: none;
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color) 15%, transparent);
 }
 
 .reader-container {
@@ -107,14 +121,15 @@ textarea#text-input:focus {
     width: 100%;
     height: 200px;
     background-color: var(--panel-color);
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     margin-bottom: 15px;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--shadow-md); /* NEW: Soft shadow */
 }
 
 #word-display {
@@ -127,13 +142,13 @@ textarea#text-input:focus {
 .progress-bar-container {
     width: 100%;
     height: 12px;
-    background-color: var(--panel-color);
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    background-color: var(--bg-color); /* MODIFIED: Use bg color for contrast */
+    border: 1px solid var(--border-color);
+    border-radius: 99px; /* Pill shape */
     overflow: hidden;
-    padding: 2px;
+    padding: 0;
     transition: background-color 0.3s ease, border-color 0.3s ease;
-    cursor: pointer; /* NEW: Indicates the progress bar is clickable */
+    cursor: pointer;
 }
 
 #progress-bar {
@@ -141,6 +156,7 @@ textarea#text-input:focus {
     height: 100%;
     background-color: var(--primary-color);
     transition: width 0.2s ease-in-out, background-color 0.3s ease;
+    border-radius: 99px;
 }
 
 /* --- CONTROLS --- */
@@ -152,21 +168,69 @@ textarea#text-input:focus {
     margin-top: 25px;
 }
 
+/* MODIFIED: Default state for settings is now unstyled, waiting for collapsed/expanded state */
 #controls-section {
     padding: 0;
     background-color: transparent;
     border: none;
+    box-shadow: none;
+    transition: all 0.35s ease-in-out;
+}
+
+/* --- NEW: Settings Button Behavior --- */
+
+/* State when settings panel is collapsed into a floating button */
+#controls-section.collapsed {
+    margin-top: 20px; /* Give some space from the element above */
+}
+
+#controls-section.collapsed .collapsible-header {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+    z-index: 100;
+    background-color: var(--primary-color);
+    color: white;
+    /* MODIFIED: Add border to allow for hover color change */
+    border: 1px solid var(--primary-color);
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    /* MODIFIED: Add transition to match other buttons */
+    transition: all 0.15s ease-out;
+}
+#controls-section.collapsed .collapsible-header:hover {
+    /* MODIFIED: Unify hover effect with other buttons */
+    transform: translateY(-2px);
+    border-color: var(--text-color);
+}
+
+#controls-section.collapsed .collapsible-header h2 {
+    display: none;
+}
+
+/* State when settings panel is expanded */
+#controls-section:not(.collapsed) {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .collapsible-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 25px;
+    padding: 20px 30px;
     cursor: pointer;
     background-color: var(--panel-color);
-    border: var(--border-width) solid var(--border-color);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
 }
 
 .collapsible-header h2 {
@@ -175,28 +239,60 @@ textarea#text-input:focus {
     font-weight: 700;
 }
 
+/* MODIFIED: Replaced emoji with an SVG icon system for consistency */
 .toggle-icon {
-    font-size: 1.2rem;
-    color: var(--text-color);
-    transition: transform 0.3s ease-out, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-out;
+}
+
+.toggle-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2.5;
+    transition: all 0.3s ease-out;
+}
+
+/* When expanded, show chevron; when collapsed, show gear */
+#controls-section:not(.collapsed) .icon-gear,
+#controls-section.collapsed .icon-chevron {
+    display: none;
+}
+
+#controls-section:not(.collapsed) .icon-chevron {
+    display: block;
+    stroke: var(--text-color);
+}
+
+#controls-section.collapsed .icon-gear {
+    display: block;
+    stroke: white;
+    width: 30px;
+    height: 30px;
 }
 
 #controls-section:not(.collapsed) .collapsible-header {
-    border-bottom: var(--border-width) solid transparent;
+    border-bottom: 1px solid var(--border-color);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: var(--shadow-sm);
 }
 
 .collapsible-content {
-    padding: 25px;
+    padding: 30px;
     background-color: var(--panel-color);
-    border: var(--border-width) solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-top: none;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* Let fieldsets manage their own spacing instead of using a global gap */
-    transition: max-height 0.35s ease-in-out, padding 0.35s ease-in-out, opacity 0.35s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.35s ease-in-out;
     max-height: 1000px;
     opacity: 1;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
 }
 
 #controls-section.collapsed .collapsible-content {
@@ -204,58 +300,38 @@ textarea#text-input:focus {
     padding-top: 0;
     padding-bottom: 0;
     opacity: 0;
-    border-left: var(--border-width) solid transparent;
-    border-right: var(--border-width) solid transparent;
-    border-bottom: var(--border-width) solid transparent;
+    border: 1px solid transparent;
+    border-top: none;
+    box-shadow: none;
 }
 
-#controls-section.collapsed .toggle-icon {
-    transform: rotate(-90deg);
-}
-
-/* UPDATED: Fieldset, Legend, and Separator Styling */
 fieldset {
     border: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* This creates space between the legend and its controls */
+    gap: 15px;
 }
 
-/* Add a larger top margin to create vertical space between sections */
 fieldset + fieldset {
-    margin-top: 30px;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid var(--border-color); /* NEW: Cleaner separator */
 }
 
 legend {
-    padding: 0;
-    margin: 20px 0; /* Added space above and below each label with line */
+    padding: 0 0 10px 0;
     font-weight: 700;
     font-size: 1rem;
     color: var(--text-color);
     transition: color 0.3s ease;
-    
-    /* Use flexbox to align the text and the separator line */
-    display: flex;
-    align-items: center;
     width: 100%;
 }
 
-/* Add the separator line ONLY to legends in fieldsets that follow another one */
-fieldset + fieldset > legend::after {
-    content: '';
-    flex-grow: 1; /* Makes the line fill all available horizontal space */
-    height: var(--border-width);
-    background-color: var(--border-color);
-    margin-left: 15px; /* Creates the space between the text and the line */
-    transition: background-color 0.3s ease;
-}
-
-/* --- NEW: Toggle Switch Styles --- */
 .toggle-group {
     display: grid;
-    grid-template-columns: 1fr auto; /* Label on left, switch on right */
+    grid-template-columns: 1fr auto;
     align-items: center;
     gap: 15px;
 }
@@ -263,15 +339,11 @@ fieldset + fieldset > legend::after {
 .switch {
     position: relative;
     display: inline-block;
-    width: 50px;
-    height: 28px;
+    width: 52px;
+    height: 30px;
 }
 
-.switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+.switch input { display: none; }
 
 .switch-slider {
     position: absolute;
@@ -280,20 +352,22 @@ fieldset + fieldset > legend::after {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: transparent;
-    border: var(--border-width) solid var(--border-color);
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
     transition: .3s;
+    border-radius: 30px;
 }
 
 .switch-slider:before {
     position: absolute;
     content: "";
-    height: 20px;
-    width: 20px;
-    left: 2px;
-    bottom: 2px;
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 3px;
     background-color: var(--text-light-color);
     transition: .3s;
+    border-radius: 50%;
 }
 
 input:checked + .switch-slider {
@@ -302,12 +376,9 @@ input:checked + .switch-slider {
 }
 
 input:checked + .switch-slider:before {
-    background-color: var(--bg-color);
-    border: none;
+    background-color: white;
     transform: translateX(22px);
 }
-
-/* --- End Toggle Switch Styles --- */
 
 .control-group {
     display: grid;
@@ -319,6 +390,7 @@ input:checked + .switch-slider:before {
 .control-group label {
     font-size: 14px;
     color: var(--text-light-color);
+    font-weight: 500;
     text-align: left;
     transition: color 0.3s ease;
 }
@@ -333,73 +405,63 @@ input:checked + .switch-slider:before {
 }
 
 input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
+    -webkit-appearance: none; appearance: none;
     width: 100%;
-    height: 12px;
-    background: transparent;
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    height: 8px; /* Thinner track */
+    /* MODIFIED: Use a gradient for a filled track effect. The CSS var is set by JS. */
+    background: linear-gradient(to right, var(--primary-color) var(--slider-progress, 0%), var(--bg-color) var(--slider-progress, 0%));
+    border: 1px solid var(--border-color);
+    border-radius: 99px;
     outline: none;
     cursor: pointer;
-    padding: 2px;
-    transition: border-color 0.3s ease;
-}
-input[type="range"]::-webkit-slider-runnable-track {
-    background: var(--primary-color);
-    height: 100%;
-    transition: background-color 0.3s ease;
+    padding: 0;
+    /* MODIFIED: Disable background transition for smooth dragging */
+    transition: all 0.2s ease, background 0s;
 }
 input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 24px;
-    background: var(--bg-color);
-    border: var(--border-width) solid var(--border-color);
+    -webkit-appearance: none; appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--panel-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
     cursor: pointer;
-    margin-top: -6px; /* Center thumb vertically */
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
 }
 input[type="range"]::-moz-range-thumb {
-    width: 12px;
-    height: 24px;
-    background: var(--bg-color);
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    width: 20px;
+    height: 20px;
+    background: var(--panel-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
 }
-input[type="range"]::-moz-range-track {
-    background: var(--primary-color);
-    height: 100%;
-    transition: background-color 0.3s ease;
+input[type="range"]:hover::-webkit-slider-thumb {
+    transform: scale(1.1);
+}
+input[type="range"]:hover::-moz-range-thumb {
+    transform: scale(1.1);
 }
 
-/* NEW: Style for disabled sliders and their labels */
-input[type="range"]:disabled {
-    cursor: not-allowed;
-}
-input[type="range"]:disabled::-webkit-slider-runnable-track,
-input[type="range"]:disabled::-moz-range-track {
-    background: var(--text-light-color);
-}
+input[type="range"]:disabled { cursor: not-allowed; }
+input[type="range"]:disabled::-webkit-slider-thumb { background: var(--text-light-color); border-color: var(--text-light-color); }
+input[type="range"]:disabled::-moz-range-thumb { background: var(--text-light-color); border-color: var(--text-light-color); }
 .control-group.disabled label,
 .control-group.disabled .control-value {
     color: var(--text-light-color);
     opacity: 0.6;
 }
 
-
-.control-group:has(.control-color-picker) {
-    grid-template-columns: 140px auto;
-}
+.control-group:has(.control-color-picker) { grid-template-columns: 140px auto; }
 
 .control-color-picker {
     width: 40px;
     height: 40px;
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     padding: 3px;
     background-color: transparent;
     cursor: pointer;
@@ -408,82 +470,74 @@ input[type="range"]:disabled::-moz-range-track {
 
 .btn {
     padding: 12px 25px;
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px; /* Rounded buttons */
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 4px 4px 0px var(--border-color);
+    transition: all 0.15s ease-out;
+    box-shadow: var(--shadow-sm); /* Softer shadow */
 }
-.btn:active { 
-    transform: translate(4px, 4px);
-    box-shadow: none; 
+.btn:active {
+    transform: scale(0.97) translateY(1px); /* More subtle press effect */
+    box-shadow: none;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-.btn-primary { 
-    background-color: var(--primary-color); 
-    color: var(--text-color); 
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
-.btn-secondary { 
-    background-color: var(--panel-color); 
-    color: var(--text-color); 
+.btn-secondary {
+    background-color: var(--panel-color);
+    color: var(--text-color);
 }
+
+/* MODIFIED: Unified hover effect for primary and secondary buttons */
+.btn-primary:hover,
 .btn-secondary:hover {
-    background-color: var(--bg-color);
+    border-color: var(--text-color);
 }
 
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 600px) {
-    body {
-        padding: 20px 15px; /* Less padding on smaller screens */
-    }
+    body { padding: 20px 15px 40px; }
 
-    .app-header {
-        margin-bottom: 0; /* Reset negative margin for stacked layout */
-    }
+    /* The rules for .header-top-row and #theme-toggle-btn are now the default,
+       so they are no longer needed inside the media query for this specific purpose.
+       Keeping the rest of the mobile styles. */
 
-    .header-top-row {
-        flex-direction: column-reverse; /* Places button before title */
-        gap: 15px;
-        align-items: stretch; /* MODIFIED: Allow children to be aligned individually. */
-    }
+    .app-header h1 { font-size: 2.5rem; }
 
-    #theme-toggle-btn {
-        position: relative; /* Return button to normal document flow */
-        right: auto;
-        top: auto;
-        transform: none; /* Reset positioning transform */
-        align-self: flex-end; /* NEW: Align button to the right. The title is centered via its parent. */
+    /* Make settings button smaller on mobile */
+    #controls-section.collapsed .collapsible-header {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
     }
-    #theme-toggle-btn:active {
-        transform: translate(2px, 2px); /* Adjust active state for new position */
-    }
-
-    .app-header h1 {
-        font-size: 2.5rem; /* Slightly smaller title on mobile */
+    #controls-section.collapsed .toggle-icon svg.icon-gear {
+        width: 26px;
+        height: 26px;
     }
 }
 
-/* --- FOCUS MODE STYLES --- NEW SECTION */
-
-/* Hide non-essential elements when focus mode is active */
+/* --- FOCUS MODE STYLES --- */
 body.focus-mode .app-header,
 body.focus-mode #input-section,
-body.focus-mode #controls-section {
-    display: none;
-}
+body.focus-mode #controls-section { display: none; }
 
-/* Make the app container and reader section fill the screen */
 body.focus-mode {
     padding: 0;
-    align-items: center; /* Center the container vertically */
-    background-color: var(--panel-color); /* MODIFIED: Use panel color for focus bg */
+    align-items: center;
+    background-color: var(--panel-color);
 }
 
 body.focus-mode .app-container {
@@ -495,7 +549,7 @@ body.focus-mode .app-container {
 }
 
 body.focus-mode #reader-section {
-    position: relative; /* For absolute positioning of controls */
+    position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -503,73 +557,61 @@ body.focus-mode #reader-section {
     gap: 20px;
 }
 
-/* Style the display window for focus */
 body.focus-mode #display-window {
-    flex-grow: 1; /* Take up available vertical space */
+    flex-grow: 1;
     border: none;
     background-color: transparent;
     margin-bottom: 0;
+    box-shadow: none;
 }
 
-/* Adjust word display padding for more breathing room */
-body.focus-mode #word-display {
-    padding: 0 50px;
-}
+body.focus-mode #word-display { padding: 0 50px; }
 
-/* Style the progress bar for subtlety */
 body.focus-mode .progress-bar-container {
     height: 5px;
-    border: 1px solid var(--border-color);
-    background-color: transparent;
-    padding: 1px;
-    margin-bottom: 0; /* No margin below it */
+    border: none;
+    background-color: var(--border-color);
+    padding: 0;
+    margin-bottom: 0;
 }
 
-/* Handle the controls visibility and style */
 body.focus-mode #reader-section .main-controls {
     opacity: 0;
     transition: opacity 0.4s ease-in-out;
-    position: absolute; /* Position relative to #reader-section */
+    position: absolute;
     bottom: 5vh;
     left: 50%;
     transform: translateX(-50%);
     margin-top: 0;
-    pointer-events: none; /* Prevent interacting with invisible buttons */
+    pointer-events: none;
 }
 
-/* Show controls on hover of the entire reader section */
 body.focus-mode #reader-section:hover .main-controls {
     opacity: 1;
-    pointer-events: auto; /* Allow interaction when visible */
+    pointer-events: auto;
 }
 
-/* Make buttons minimalist in focus mode */
 body.focus-mode #reader-section .main-controls .btn {
     box-shadow: none;
     background: transparent;
-    border-color: var(--text-light-color);
+    border: 1px solid var(--text-light-color);
     color: var(--text-light-color);
     font-weight: 500;
 }
 body.focus-mode #reader-section .main-controls .btn:hover {
+    transform: none;
+    box-shadow: none;
     border-color: var(--text-color);
     color: var(--text-color);
-    background-color: transparent; /* Override default hover */
+    background-color: color-mix(in srgb, var(--border-color) 50%, transparent);
 }
-body.focus-mode #reader-section .main-controls .btn:active {
-    transform: translate(1px, 1px);
-    background: rgba(128, 128, 128, 0.1);
-}
+body.focus-mode #reader-section .main-controls .btn:active { transform: scale(0.97); }
 
-/* Hide cursor when user is idle */
-body.focus-mode.idle-cursor {
-    cursor: none;
-}
+body.focus-mode.idle-cursor { cursor: none; }
 
-/* --- WPM DRAG INDICATOR STYLES --- NEW SECTION */
-
+/* --- WPM DRAG INDICATOR STYLES --- */
 #wpm-drag-indicator {
-    position: fixed; /* Use fixed to position relative to viewport */
+    position: fixed;
     right: 30px;
     top: 50%;
     transform: translateY(-50%);
@@ -579,42 +621,45 @@ body.focus-mode.idle-cursor {
     gap: 15px;
     z-index: 1000;
     opacity: 0;
-    pointer-events: none; /* Ignore clicks when hidden */
+    pointer-events: none;
     transition: opacity 0.3s ease-out;
 }
 
-#wpm-drag-indicator.visible {
-    opacity: 1;
-}
+#wpm-drag-indicator.visible { opacity: 1; }
 
 #wpm-drag-value {
     font-size: 22px;
     font-weight: 700;
     color: var(--text-color);
     font-family: monospace;
-    padding: 5px 10px;
+    padding: 8px 12px;
     background-color: var(--panel-color);
-    border: var(--border-width) solid var(--border-color);
+    border: 1px solid var(--border-color);
     min-width: 60px;
     text-align: center;
-    transition: all 0.3s ease; /* For smooth theme changes */
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
 }
 
 #wpm-drag-bar-container {
     width: 12px;
     height: 250px;
     background-color: var(--panel-color);
-    border: var(--border-width) solid var(--border-color);
+    border: 1px solid var(--border-color);
     display: flex;
-    align-items: flex-end; /* Makes the inner bar grow from the bottom */
+    align-items: flex-end;
     padding: 2px;
     box-sizing: content-box;
-    transition: all 0.3s ease; /* For smooth theme changes */
+    transition: all 0.3s ease;
+    border-radius: 99px;
+    box-shadow: var(--shadow-md);
 }
 
 #wpm-drag-bar {
     width: 100%;
-    height: 0%; /* JS will control this */
+    height: 0%;
     background-color: var(--primary-color);
     transition: background-color 0.3s ease;
+    border-radius: 99px;
 }

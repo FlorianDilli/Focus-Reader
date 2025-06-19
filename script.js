@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const wpmDragIndicator = document.getElementById('wpm-drag-indicator');
     const wpmDragValue = document.getElementById('wpm-drag-value');
     const wpmDragBar = document.getElementById('wpm-drag-bar');
+    // NEW: Get all sliders for fill effect
+    const sliders = document.querySelectorAll('input[type="range"]');
 
     // Application State (initialized from APP_CONFIG)
     const state = {
@@ -71,8 +73,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let wpmDragStartWPM = 0;
     const WPM_DRAG_SENSITIVITY = 2; // Higher value = less sensitive drag
     let wpmIndicatorTimeoutId = null; 
-    // NEW: Accumulator for scroll wheel sensitivity
     let wpmScrollAccumulator = 0;
+
+    // --- NEW: Helper function for slider track fill ---
+    function updateSliderFill(slider) {
+        const min = parseFloat(slider.min) || 0;
+        const max = parseFloat(slider.max) || 100;
+        const value = parseFloat(slider.value);
+        const percentage = max > min ? ((value - min) / (max - min)) * 100 : 0;
+        slider.style.setProperty('--slider-progress', `${percentage}%`);
+    }
 
     // --- Theme Management ---
     function applyTheme(themeName) {
@@ -168,18 +178,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (APP_CONFIG.settingsPanel.startCollapsed) {
             controlsSection.classList.add('collapsed');
         }
+
+        // NEW: Set initial fill for all sliders
+        sliders.forEach(updateSliderFill);
     }
 
     // --- Event Listeners ---
-    wpmSlider.addEventListener('input', (e) => { state.wpm = parseInt(e.target.value, 10); wpmValue.textContent = state.wpm; });
-    chunkSlider.addEventListener('input', (e) => { state.chunkSize = parseInt(e.target.value, 10); chunkValue.textContent = state.chunkSize; handleProgressBarScrub(); }); // Scrub on chunk change
-    commaPauseSlider.addEventListener('input', (e) => { state.commaPauseMultiplier = parseFloat(e.target.value); commaPauseValue.textContent = state.commaPauseMultiplier.toFixed(1); });
-    sentencePauseSlider.addEventListener('input', (e) => { state.endOfSentencePauseMultiplier = parseFloat(e.target.value); sentencePauseValue.textContent = state.endOfSentencePauseMultiplier.toFixed(1); });
-    fontSizeSlider.addEventListener('input', (e) => { state.fontSize = parseInt(e.target.value, 10); fontSizeValue.textContent = state.fontSize; wordDisplay.style.fontSize = `${state.fontSize}px`; });
+    wpmSlider.addEventListener('input', (e) => { state.wpm = parseInt(e.target.value, 10); wpmValue.textContent = state.wpm; updateSliderFill(e.target); });
+    chunkSlider.addEventListener('input', (e) => { state.chunkSize = parseInt(e.target.value, 10); chunkValue.textContent = state.chunkSize; handleProgressBarScrub(); updateSliderFill(e.target); });
+    commaPauseSlider.addEventListener('input', (e) => { state.commaPauseMultiplier = parseFloat(e.target.value); commaPauseValue.textContent = state.commaPauseMultiplier.toFixed(1); updateSliderFill(e.target); });
+    sentencePauseSlider.addEventListener('input', (e) => { state.endOfSentencePauseMultiplier = parseFloat(e.target.value); sentencePauseValue.textContent = state.endOfSentencePauseMultiplier.toFixed(1); updateSliderFill(e.target); });
+    fontSizeSlider.addEventListener('input', (e) => { state.fontSize = parseInt(e.target.value, 10); fontSizeValue.textContent = state.fontSize; wordDisplay.style.fontSize = `${state.fontSize}px`; updateSliderFill(e.target); });
     fontColorPicker.addEventListener('input', (e) => { state.fontColor = e.target.value; wordDisplay.style.color = state.fontColor; });
     
     dynamicSpeedToggle.addEventListener('change', handleDynamicSpeedToggle);
-    dynamicSpeedSlider.addEventListener('input', (e) => { state.dynamicSpeedPenalty = parseInt(e.target.value, 10); dynamicSpeedValue.textContent = state.dynamicSpeedPenalty; });
+    dynamicSpeedSlider.addEventListener('input', (e) => { state.dynamicSpeedPenalty = parseInt(e.target.value, 10); dynamicSpeedValue.textContent = state.dynamicSpeedPenalty; updateSliderFill(e.target); });
     
     startPauseBtn.addEventListener('click', handleStartPause);
     startPauseBtnInitial.addEventListener('click', handleStartPause);
@@ -358,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 wpmSlider.value = state.wpm;
                 wpmValue.textContent = state.wpm;
                 updateWpmDragIndicator();
+                updateSliderFill(wpmSlider); // Update slider fill on change
             }
 
             // Subtract the "used" amount from the accumulator, preserving any remainder
@@ -414,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             wpmSlider.value = state.wpm;
             wpmValue.textContent = state.wpm;
             updateWpmDragIndicator();
+            updateSliderFill(wpmSlider); // Update slider fill on change
         }
     }
     

@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickStream Speed Reader</title>
+    <title>Focus Reader</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <!-- MODIFIED: Added 'Inter' font for a modern UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,8 +17,8 @@
 
         <header class="app-header">
             <div class="header-top-row">
+                <!-- MODIFIED: Changed h1 to be consistent with the app name -->
                 <h1>Focus Reader</h1>
-                <!-- NEW: Theme toggle button -->
                 <button id="theme-toggle-btn" class="btn btn-secondary"></button>
             </div>
             <p>Your Personal Speed Reading Assistant</p>
@@ -42,13 +43,12 @@
                 <div id="progress-bar"></div>
             </div>
             <div class="main-controls">
-                <!-- MODIFIED: Button order changed -->
                 <button id="reset-btn" class="btn btn-secondary">Reset</button>
                 <button id="focus-btn" class="btn btn-secondary">Focus</button>
                 <button id="start-pause-btn" class="btn btn-primary">Pause</button>
             </div>
 
-            <!-- NEW: WPM Drag Indicator for Focus Mode -->
+            <!-- WPM Drag Indicator for Focus Mode -->
             <div id="wpm-drag-indicator">
                 <div id="wpm-drag-value"></div>
                 <div id="wpm-drag-bar-container">
@@ -61,7 +61,11 @@
         <section id="controls-section" class="panel-container">
             <header class="collapsible-header">
                 <h2>Settings</h2>
-                <span class="toggle-icon">▼</span>
+                <!-- NEW: Replaced emoji with SVG icons for better consistency -->
+                <span class="toggle-icon">
+                    <svg class="icon-gear" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.44,0.17-0.48,0.41L9.2,5.77C8.61,6.01,8.08,6.33,7.58,6.71L5.19,5.75C4.97,5.68,4.72,5.75,4.6,5.97L2.68,9.29 c-0.11,0.2-0.06,0.47,0.12,0.61l2.03,1.58C4.77,11.76,4.75,12,4.75,12.25c0,0.25,0.02,0.49,0.07,0.73l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.56 c0.04,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.48-0.41l0.36-2.56c0.59-0.24,1.12-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0.01,0.59-0.22l1.92-3.32C21.4,13.35,21.32,13.08,21.14,12.94z"/><circle cx="12" cy="12" r="3.5"/></svg>
+                    <svg class="icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
             </header>
             <div class="collapsible-content">
                 <fieldset>
@@ -76,7 +80,6 @@
                         <input type="range" id="chunk-slider">
                         <span id="chunk-value" class="control-value"></span>
                     </div>
-                    <!-- NEW: Dynamic Speed Controls -->
                     <div class="control-group toggle-group">
                         <label for="dynamic-speed-toggle">Dynamic Speed</label>
                         <label class="switch">
