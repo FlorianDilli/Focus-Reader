@@ -295,7 +295,7 @@ textarea#text-input:focus {
 #controls-section:not(.collapsed) .icon-chevron {
     display: block;
     stroke: var(--text-color);
-    transform: rotate(180deg); /* Chevron points up to close */
+    transform: rotate(180deg); /* Chevron points up to close  */
 }
 
 #controls-section.collapsed .icon-gear {
